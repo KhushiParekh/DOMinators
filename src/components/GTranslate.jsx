@@ -31,7 +31,7 @@ const GTranslate = () => {
       id="google_translate_element"
       style={{
         position: 'absolute',
-        top: '3rem',
+        top: '4rem',
         right: '0.2rem',
         opacity: 0.5,
         zIndex: 1000,

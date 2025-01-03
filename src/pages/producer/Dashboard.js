@@ -13,13 +13,29 @@ import abi from '../../abi.json';
 import TokenListings from '../../components/Listings';
 import ProducerManagement from '../../components/AddProducer';
 import EnergyBalances from '../../components/EnergyBalances';
+import {  IconButton } from '@mui/material';
+import LanguageIcon from '@mui/icons-material/Language';
+
+
 const CONTRACT_ADDRESS = "0x037A372029C066599eAcbb18c7B9e74fe32D9565"; // Replace with your deployed contract address
+
 
 const ProducerDashboard = () => {
     const navigate = useNavigate();
     const [account, setAccount] = useState('');
     const [provider, setProvider] = useState(null);
     const [contract, setContract] = useState(null);
+    const [anchorEl, setAnchorEl] = useState(null);
+
+    // Open menu handler
+    const handleMenuOpen = (event) => {
+      setAnchorEl(event.currentTarget);
+    };
+  
+    // Close menu handler
+    const handleMenuClose = () => {
+      setAnchorEl(null);
+    };
 
     useEffect(() => {
         initializeWallet();
@@ -125,6 +141,16 @@ const ProducerDashboard = () => {
                         Logout
                     </button>
                     <ProfileIcon onClick={handleProfile} className="text-green-700 cursor-pointer" />
+                    {/* Multilingual Icon */}
+            <IconButton
+              color="inherit"
+              onClick={handleMenuOpen}
+              aria-controls="language-menu"
+              aria-haspopup="true"
+              className="hover:text-green-600"
+            >
+              <LanguageIcon />
+            </IconButton>
                 </div>
             </div>
             

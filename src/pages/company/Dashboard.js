@@ -15,11 +15,24 @@ import BuyTokens from '../../components/BuyToken';
 import RECListings from '../../components/Listings';
 import EnergyBalances from '../../components/EnergyBalances';
 import abi from '../../abi.json'
+import {  IconButton } from '@mui/material';
+import LanguageIcon from '@mui/icons-material/Language';
 
 const CompanyDashboard = () => {
     const navigate = useNavigate();
     const [account, setAccount] = useState('');
     const [contract, setContract] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  // Open menu handler
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  // Close menu handler
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
     useEffect(() => {
         connectWallet();
@@ -97,6 +110,16 @@ const CompanyDashboard = () => {
                         Logout
                     </button>
                     <ProfileIcon onClick={handleProfile} className="text-green-700 cursor-pointer" />
+                     {/* Multilingual Icon */}
+            <IconButton
+              color="inherit"
+              onClick={handleMenuOpen}
+              aria-controls="language-menu"
+              aria-haspopup="true"
+              className="hover:text-green-600"
+            >
+              <LanguageIcon />
+            </IconButton>
                 </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
