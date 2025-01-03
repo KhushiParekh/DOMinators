@@ -465,7 +465,7 @@ const renderLeaderboard = (currentUserEmail) => {
 // export default CompanyProfile;
 
 const renderHeader = () => (
-    <div className="relative overflow-hidden backdrop-blur-xl bg-gradient-to-r from-white/40 via-white/60 to-white/40 rounded-2xl shadow-lg border border-white/20">
+    <div className="relative overflow-hidden backdrop-blur-xl bg-gradient-to-r from-white/40 via-white/60 to-white/40 rounded-2xl shadow-lg border z-5 border-white/20">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 via-green-100/30 to-purple-100/30 opacity-50" />
       
       <div className="relative p-8 flex flex-col md:flex-row gap-8">
