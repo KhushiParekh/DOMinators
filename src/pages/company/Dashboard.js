@@ -12,6 +12,8 @@ import { auth } from "../firebase";
 import { toast } from "react-toastify";
 import { AccountCircleOutlined as ProfileIcon } from "@mui/icons-material";
 import BuyTokens from '../../components/BuyToken';
+import RECListings from '../../components/Listings';
+import EnergyBalances from '../../components/EnergyBalances';
 import abi from "../../abi.json";
 
 const CompanyDashboard = () => {
@@ -33,7 +35,7 @@ const CompanyDashboard = () => {
                 const signer = provider.getSigner();
                 
                 // Replace with your deployed contract address
-                const contractAddress = "0xcBCC21F602A17a67b4c205a5FFD8b5f803E99Ca0";
+                const contractAddress = "0x037A372029C066599eAcbb18c7B9e74fe32D9565";
                 const contractABI = abi; // Insert your contract ABI here
                 
                 const contract = new ethers.Contract(
@@ -104,7 +106,9 @@ const CompanyDashboard = () => {
                 <TransactionHistory contract={contract} account={account} />
                 <BuyHistory contract={contract} account={account} />
                 <SellHistory contract={contract} account={account} />
-                <BuyTokens contract={contract} account={account} />
+                {/* <BuyTokens contract={contract} account={account} /> */}
+                <RECListings contract={contract} account={account}/>
+                <EnergyBalances contract={contract} account={account} />
             </div>
         </div>
     );

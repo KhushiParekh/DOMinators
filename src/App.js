@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
 import Home from './pages/Home';
 import GTranslate from './components/GTranslate';
-import ConsumerDB from './pages/user/Dashboard';
+// import ConsumerDB from './pages/user/Dashboard';
 // import Profile from './pages/profile'
 import CompanyProfile from './pages/company/CompanyProfile';
 import { toast } from 'react-toastify';
 import { auth } from './pages/firebase';
+import CompanyDashboard from './pages/company/Dashboard';
 
 
 // Protected Route Component
@@ -55,7 +56,7 @@ const App = () => {
           path="/companiesDB"
           element={
             <ProtectedRoute>
-              <CompaniesDB />
+              <CompanyDashboard />
             </ProtectedRoute>
           }
         />
