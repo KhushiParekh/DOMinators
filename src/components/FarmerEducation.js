@@ -1,58 +1,11 @@
-// import React from 'react';
-
-// const methods = [
-//   "Biogas production from anaerobic digestion of crop residues.",
-//   "Combustion of agricultural biomass for direct heat generation.",
-//   "Conversion of agricultural waste into bioethanol through fermentation.",
-//   "Pyrolysis of crop waste to produce biochar and bio-oil.",
-//   "Gasification of biomass for syngas generation."
-// ];
-
-// const benefits = [
-//   "Reduces dependency on fossil fuels, promoting renewable energy.",
-//   "Helps in managing agricultural waste sustainably.",
-//   "Improves soil health through biochar application.",
-//   "Generates additional income for farmers from waste conversion.",
-//   "Reduces greenhouse gas emissions and mitigates climate change."
-// ];
-
-// const FarmerEducation = () => (
-//   <section className="bg-white rounded-xl shadow-sm p-8 mb-12">
-//     <h2 className="text-3xl font-bold mb-6">Agricultural Waste to Energy Guide</h2>
-//     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-//       <div>
-//         <h3 className="text-xl font-bold mb-4">Conversion Methods</h3>
-//         <ul className="space-y-3">
-//           {methods.map((method, i) => (
-//             <li key={i} className="flex items-start gap-3">
-//               <span className="text-green-600">•</span>
-//               <span>{method}</span>
-//             </li>
-//           ))}
-//         </ul>
-//       </div>
-//       <div>
-//         <h3 className="text-xl font-bold mb-4">Benefits</h3>
-//         <ul className="space-y-3">
-//           {benefits.map((benefit, i) => (
-//             <li key={i} className="flex items-start gap-3">
-//               <span className="text-green-600">•</span>
-//               <span>{benefit}</span>
-//             </li>
-//           ))}
-//         </ul>
-//       </div>
-//     </div>
-//   </section>
-// );
-
-// export default FarmerEducation;
-
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Maximize2, Minimize2 } from 'lucide-react';
 
 const FarmerEducation = () => {
   const [activeTab, setActiveTab] = useState('methods');
+  const [fullscreenVideo, setFullscreenVideo] = useState(null);
+  const videoRefs = [useRef(null), useRef(null)];
   
   const methods = [
     {
@@ -120,6 +73,32 @@ const FarmerEducation = () => {
     }
   ];
 
+  const videos = [
+    {
+      title: "Understanding Biogas Production",
+      src: require("../assets/video2.mp4"),
+       poster: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'%3E%3Crect width='640' height='360' fill='%23004d40'/%3E%3Ctext x='320' y='180' font-family='Arial' font-size='24' fill='white' text-anchor='middle' alignment-baseline='middle'%3EBiogas Production Process%3C/text%3E%3Ccircle cx='320' cy='120' r='40' fill='%2300796b'/%3E%3Cpath d='M280 220 Q320 260 360 220' stroke='%2300796b' fill='none' stroke-width='8'/%3E%3C/svg%3E"
+    },
+    {
+      title: "Biomass Energy Solutions",
+      src: require("../assets/video1.mp4"),
+      poster: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'%3E%3Crect width='640' height='360' fill='%23006064'/%3E%3Ctext x='320' y='180' font-family='Arial' font-size='24' fill='white' text-anchor='middle' alignment-baseline='middle'%3EBiomass Energy Solutions%3C/text%3E%3Cpath d='M290 140 L320 100 L350 140 L320 180 Z' fill='%230097a7'/%3E%3Ccircle cx='320' cy='220' r='30' fill='%230097a7'/%3E%3C/svg%3E"
+    }
+  ];
+
+  const toggleFullscreen = (index) => {
+    if (fullscreenVideo === index) {
+      document.exitFullscreen().catch(err => console.log(err));
+      setFullscreenVideo(null);
+    } else {
+      const videoElement = videoRefs[index].current;
+      if (videoElement) {
+        videoElement.requestFullscreen().catch(err => console.log(err));
+        setFullscreenVideo(index);
+      }
+    }
+  };
+
   return (
     <section className="bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-lg p-8 mb-12">
       <h2 className="text-4xl font-bold mb-8 text-start bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-green-500">
@@ -180,6 +159,39 @@ const FarmerEducation = () => {
           ))}
         </motion.div>
       </AnimatePresence>
+
+      {/* Video Section */}
+      <div className="mt-12">
+        <h3 className="text-2xl font-bold mb-6">Educational Videos</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {videos.map((video, index) => (
+            <div key={index} className="relative bg-white rounded-xl shadow-sm overflow-hidden">
+              <video
+                ref={videoRefs[index]}
+                className="w-full aspect-video object-cover"
+                poster={video.poster}
+                controls
+              >
+                <source src={video.src} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              <button
+                onClick={() => toggleFullscreen(index)}
+                className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors"
+              >
+                {fullscreenVideo === index ? (
+                  <Minimize2 className="w-5 h-5" />
+                ) : (
+                  <Maximize2 className="w-5 h-5" />
+                )}
+              </button>
+              <div className="p-4">
+                <h4 className="text-lg font-semibold">{video.title}</h4>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 };
