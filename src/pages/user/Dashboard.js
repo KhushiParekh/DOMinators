@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import { AccountCircleOutlined as ProfileIcon } from "@mui/icons-material";
 import { IconButton } from '@mui/material';
 import LanguageIcon from '@mui/icons-material/Language';
-import BillAnalysis from '../../components/BillAnalysis'
+// import BillAnalysis from '../../components/BillAnalysis'
 const UserDashboard = () => {
   const navigate = useNavigate();
   const [user] = useState({
@@ -148,9 +148,9 @@ const UserDashboard = () => {
               // onClick={handleBillUpload}
               className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              {/* <Camera className="w-5 h-5" />
-              <span>Upload Energy Bill</span> */}
-              <BillAnalysis/>
+              <Camera className="w-5 h-5" />
+              <span>Upload Energy Bill</span>
+              {/* <BillAnalysis/> */}
             </button>
             <button
               onClick={handleGridReturnUpload}

@@ -14,7 +14,7 @@ import { AccountCircleOutlined as ProfileIcon } from "@mui/icons-material";
 import BuyTokens from '../../components/BuyToken';
 import RECListings from '../../components/Listings';
 import EnergyBalances from '../../components/EnergyBalances';
-import abi from "../../abi.json";
+import abi from '../../abi.json'
 
 const CompanyDashboard = () => {
     const navigate = useNavigate();

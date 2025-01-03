@@ -17,7 +17,7 @@ const Header = () => {
   };
 
   return (
-    <header className="py-3 bg-gray-900 shadow-sm z-11 w-screen flex top-0 absolute">
+    <header className="py-1 bg-gray-900 shadow-sm z-11 w-screen flex top-0 absolute">
       <div className="container mx-auto px-4 py-4">
         <nav className="flex justify-between items-center">
           <Link to="/" className="text-2xl font-extrabold text-green-600">
