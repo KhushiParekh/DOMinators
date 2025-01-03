@@ -7,8 +7,11 @@ import GTranslate from './components/GTranslate';
 import CompanyProfile from './pages/company/CompanyProfile';
 import { toast } from 'react-toastify';
 import { auth } from './pages/firebase';
+import { AuthProvider } from './context/AuthContext';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ConsumerDB from './pages/user/Dashboard';
 import CompanyDashboard from './pages/company/Dashboard';
-
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -43,15 +46,37 @@ const ProtectedRoute = ({ children }) => {
 
 
 const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userType, setUserType] = useState(null);
 
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsLoggedIn(!!user);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
+    <AuthProvider>
+      <div className="profile-container">
+      <div className="content">
     <BrowserRouter>
     <GTranslate/>
       
 
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route 
+          path="/login" 
+          element={
+            <Login 
+              setIsLoggedIn={setIsLoggedIn} 
+              setUserType={setUserType} 
+            />
+          } 
+        />
+        <Route path="/register" element={<Register/>} />
         <Route
           path="/companiesDB"
           element={
@@ -69,10 +94,20 @@ const App = () => {
             <Navigate to="/" replace />
           }
         />
-       
+        <Route
+          path="/consumersDB"
+          element={
+            <ProtectedRoute>
+              <ConsumerDB />
+            </ProtectedRoute>
+          }
+        />
 
       </Routes>
     </BrowserRouter>
+    </div>
+    </div>
+    </AuthProvider>
   );
 };
 
