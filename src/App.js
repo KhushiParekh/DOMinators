@@ -13,6 +13,8 @@ import CompanyProfile from './pages/company/CompanyProfile';
 import ProducerProfile from './pages/producer/ProducerProfile';
 import GTranslate from './components/GTranslate';
 import { AuthProvider } from './context/AuthContext';
+import Community from './components/Community';
+import FloatingChatButton from './components/FloatingChatButton';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -100,27 +102,6 @@ const App = () => {
     <div className="content">
     <BrowserRouter>
     <GTranslate/>
-      {/* <nav className="p-4 bg-gray-100 shadow-sm">
-        <ul className="flex space-x-4">
-        
-          {isLoggedIn && userType === 'producer' && (
-            <li>
-              <Link to="/producer" className="text-blue-500 hover:underline">Producer Dashboard</Link>
-            </li>
-          )}
-          {isLoggedIn && userType === 'company' && (
-            <li>
-              <Link to="/company" className="text-blue-500 hover:underline">Company Dashboard</Link>
-            </li>
-          )}
-          {isLoggedIn && userType === 'user' && (
-            <li>
-              <Link to="/user" className="text-blue-500 hover:underline">User Dashboard</Link>
-            </li>
-          )}
-        </ul>
-      </nav> */}
-
       <Routes>
         <Route path="/" element={<Home />} />
         <Route 
@@ -177,10 +158,10 @@ const App = () => {
           }
         />
         
-       
+       <Route path='/community' element={<Community/>}/>
 
       </Routes>
-     
+      <FloatingChatButton/>
     </BrowserRouter>
     
     </div>
