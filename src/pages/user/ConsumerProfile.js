@@ -36,14 +36,14 @@ const ConsumerProfile = () => {
     {
       title: "Green Pioneer",
       description: "Early adopter of renewable energy",
-      points: 100,
+      points: 10,
       icon: "🌱",
       type: "badge"
     },
     {
       title: "Energy Champion",
       description: "Generated 1000+ kWh of clean energy",
-      points: 250,
+      points: 50,
       icon: "⚡",
       type: "badge"
     },
@@ -57,14 +57,14 @@ const ConsumerProfile = () => {
     {
       title: "Green Energy Expert",
       description: "Completed all basic challenges",
-      points: 300,
+      points: 30,
       icon: "📜",
       type: "certificate"
     },
     {
       title: "Community Leader",
       description: "Helped 5+ new members",
-      points: 200,
+      points: 20,
       icon: "🤝",
       type: "badge"
     }
@@ -345,7 +345,7 @@ const ConsumerProfile = () => {
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         <div className="flex items-center space-x-4">
           <button
-            onClick={() => window.location.href = "/dashboard"}
+            onClick={() => window.location.href = "/consumersDB"}
             className="p-2 rounded-xl hover:bg-white transition-colors"
           >
             <ArrowLeft className="w-6 h-6 text-gray-900" />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+ import React, { useState } from "react";
 import {
   Gift,
   Star,
@@ -12,6 +12,10 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 import { toast } from "react-toastify";
 import { AccountCircleOutlined as ProfileIcon } from "@mui/icons-material";
+import { IconButton } from '@mui/material';
+import LanguageIcon from '@mui/icons-material/Language';
+import BillAnalysis from '../../components/BillAnalysis'
+
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -66,7 +70,7 @@ const UserDashboard = () => {
 
   async function handleProfile() {
     try {
-      navigate("/profile");
+      navigate("/consumerprofile");
     } catch (error) {
       console.log("Error");
     }
@@ -86,10 +90,10 @@ const UserDashboard = () => {
     }
   }
 
-  const handleBillUpload = () => {
-    // In real implementation, this would handle file upload and OCR processing
-    alert("Bill upload functionality would be implemented here");
-  };
+  // const handleBillUpload = () => {
+  //   // In real implementation, this would handle file upload and OCR processing
+  //   alert("Bill upload functionality would be implemented here");
+  // };
 
   const handleGridReturnUpload = () => {
     // In real implementation, this would handle grid return bill processing
@@ -108,6 +112,16 @@ const UserDashboard = () => {
             Logout
           </button>
           <ProfileIcon onClick={handleProfile} className="text-green-700 cursor-pointer" />
+           {/* Multilingual Icon */}
+           <IconButton
+              color="inherit"
+             
+              aria-controls="language-menu"
+              aria-haspopup="true"
+              className="hover:text-green-600 "
+            >
+              <LanguageIcon />
+            </IconButton>
         </div>
       </div>
 
@@ -133,11 +147,12 @@ const UserDashboard = () => {
 
           <div className="space-y-4">
             <button
-              onClick={handleBillUpload}
+              // onClick={handleBillUpload}
               className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              <Camera className="w-5 h-5" />
-              <span>Upload Energy Bill</span>
+              {/* <Camera className="w-5 h-5" />
+              <span>Upload Energy Bill</span> */}
+              <BillAnalysis/>
             </button>
             <button
               onClick={handleGridReturnUpload}
@@ -208,12 +223,6 @@ const UserDashboard = () => {
             ))}
           </div>
         </div>
-<button 
-  onClick={() => navigate("/community")} 
-  className="px-8 py-4 bg-green-600/60 text-white rounded-full font-semibold hover:bg-green-700 transform hover:scale-105 transition-all"
->
-  Join Community
-</button>
       </div>
     </div>
   );
