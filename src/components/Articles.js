@@ -7,7 +7,7 @@ const Articles = () => {
   const [error, setError] = useState(null);
   
   // Replace with your actual NewsAPI key
-  const NEWS_API_KEY = '63359b42fa2747aa8003ba68d9e0c9b7';
+  const NEWS_API_KEY = '64416b065d9a418d9687b7f2b4c79695';
   
   // Sustainability-related search terms (Random Selection)
   const searchQueries = [

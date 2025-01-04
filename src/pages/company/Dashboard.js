@@ -204,9 +204,9 @@ const CompanyDashboard = () => {
                 {/* Dashboard Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                     
-                    <div className="bg-white rounded-lg shadow-sm p-6">
+                    {/* <div className="bg-white rounded-lg shadow-sm p-6">
                         <EnergyBalances contract={contract} account={account} />
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
