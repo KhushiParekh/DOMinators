@@ -119,8 +119,8 @@ const ReclaimURLVerifier = () => {
   return (
     <div className="bg-white rounded-lg shadow-lg max-w-4xl mx-auto">
       <div className="p-8 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">URL Verification</h2>
-        <p className="mt-1 text-sm text-gray-600">Enter a URL to verify its authenticity using Reclaim Protocol</p>
+        <h2 className="text-xl font-semibold text-gray-900">URL Verification (ZK Proof)</h2>
+        <p className="mt-1 text-sm text-gray-600">Enter a URL to verify using Reclaim Protocol as a Zero Knowledge Proof</p>
       </div>
       
       <div className="p-8 space-y-6">

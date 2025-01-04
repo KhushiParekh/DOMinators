@@ -305,12 +305,13 @@ import { toast } from 'react-toastify';
 import { AccountCircleOutlined as ProfileIcon } from '@mui/icons-material';
 import abi from '../../abi.json';
 import TokenListings from '../../components/BuyTokensByType';
-import ProducerManagement from '../../components/AddProducer';
+import AdminManagement from '../../components/AddProducer';
 import EnergyBalances from '../../components/EnergyBalances';
 import ActiveListings from '../../components/ActiveListings';
 import ReclaimVerification from '../../components/Reclaimverification';
 import ListTokensForm from '../../components/ListTokens';
 import { List } from 'lucide-react';
+import ProducerSales from '../../components/ProducerSales';
 import img from '../../assets/wind.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
@@ -484,16 +485,18 @@ const ProducerDashboard = () => {
                             Connect Wallet
                         </button>
                     ) : (
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-400">
                             {account.slice(0, 6)}...{account.slice(-4)}
                         </span>
                     )}
+                    <AdminManagement contract={contract} account={account} />
                     <button
                         onClick={handleLogout}
                         className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                     >
                         Logout
                     </button>
+                    
                     <ProfileIcon onClick={handleProfile} className="text-green-700 cursor-pointer" />
                               {/* Multilingual Icon */}
              <IconButton
@@ -711,10 +714,14 @@ const ProducerDashboard = () => {
                 {/* <ProducerManagement contract={contract} account={account} /> */}
                
                 {/* <EnergyBalances contract={contract} account={account} /> */}
-                 *
+            
                 
                 {/* <ListTokensForm contractAddress={contract} walletAddress={account} /> */}
             </div>
+            <div className='mt-9'>
+            <ProducerSales contract={contract} account={account} />
+            </div>
+            
         </div>
         
     );
