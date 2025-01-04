@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from "react";
-import {
-  Gift,
-  Star,
-  Users,
-  Award,
-  TreeDeciduous,
-} from "lucide-react";
+import { Gift, Star, Users, Award, TreeDeciduous } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase";
 import { toast } from "react-toastify";
 import { AccountCircleOutlined as ProfileIcon } from "@mui/icons-material";
-import { IconButton } from '@mui/material';
-import LanguageIcon from '@mui/icons-material/Language';
-import BillAnalysis from '../../components/BillAnalysis';
-import { doc, getDoc } from 'firebase/firestore';
+import { IconButton } from "@mui/material";
+import LanguageIcon from "@mui/icons-material/Language";
+import BillAnalysis from "../../components/BillAnalysis";
+import { doc, getDoc } from "firebase/firestore";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -73,10 +67,10 @@ const UserDashboard = () => {
         if (currentUser) {
           const userDocRef = doc(db, "Consumers", currentUser.uid);
           const userDocSnapshot = await getDoc(userDocRef);
-          
+
           if (userDocSnapshot.exists()) {
             const data = userDocSnapshot.data();
-            setUserData(prevState => ({
+            setUserData((prevState) => ({
               ...prevState,
               name: data.name || "Anonymous User",
               email: currentUser.email,
@@ -123,25 +117,30 @@ const UserDashboard = () => {
       <nav className="bg-gray-900  shadow-sm px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-3 ">
-            
             <h1 className="text-2xl font-semibold text-green-600 ml-5">
               User Dashboard
             </h1>
           </div>
           <div className="flex items-center gap-4">
             <button
+              onClick={() => navigate("/community")}
+              className="px-4 py-2 bg-green-600/60 text-white text-sm rounded-md font-semibold hover:bg-green-700 transform hover:scale-105 transition-all"
+            >
+              Join Community
+            </button>
+            <button
               onClick={handleLogout}
               className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
             >
               Logout
             </button>
-            <IconButton 
+            <IconButton
               onClick={handleProfile}
-              className="text-green-500 hover:text-green-800"
+              sx={{ color: "white", "&:hover": { color: "#065f46" } }} 
             >
               <ProfileIcon />
             </IconButton>
-            <IconButton className="text-gray-600 hover:text-green-800">
+            <IconButton sx={{ color: "white", "&:hover": { color: "#065f46" } }}>
               <LanguageIcon />
             </IconButton>
           </div>
@@ -158,7 +157,9 @@ const UserDashboard = () => {
                 <Users className="w-6 h-6 text-green-600" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-800">{userData.name}</h2>
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {userData.name}
+                </h2>
                 <p className="text-gray-600">{userData.email}</p>
               </div>
             </div>
@@ -187,7 +188,9 @@ const UserDashboard = () => {
               <div className="bg-yellow-100 p-2 rounded-lg">
                 <Award className="w-5 h-5 text-yellow-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800">Achievements</h3>
+              <h3 className="text-lg font-semibold text-gray-800">
+                Achievements
+              </h3>
             </div>
             <div className="space-y-3">
               {userData.achievements.map((achievement) => (
@@ -195,8 +198,12 @@ const UserDashboard = () => {
                   key={achievement.id}
                   className="bg-gray-50 rounded-md p-3 hover:bg-gray-100 transition-colors"
                 >
-                  <h4 className="font-medium text-gray-800">{achievement.title}</h4>
-                  <p className="text-gray-600 text-sm mt-1">{achievement.description}</p>
+                  <h4 className="font-medium text-gray-800">
+                    {achievement.title}
+                  </h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    {achievement.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -217,7 +224,9 @@ const UserDashboard = () => {
                   className="bg-gray-50 rounded-md p-3 hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex justify-between items-start">
-                    <h4 className="font-medium text-gray-800">{reward.title}</h4>
+                    <h4 className="font-medium text-gray-800">
+                      {reward.title}
+                    </h4>
                     <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
                       {reward.points} pts
                     </span>

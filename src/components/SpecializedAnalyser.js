@@ -4,7 +4,6 @@ import { AlertCircle, TrendingUp, DollarSign, Activity } from 'lucide-react';
 import { ethers } from 'ethers';
 
 const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress, userType }) => {
-  contractAddress = '0xDd0E158E75320cDcf6A87abc60303E96b8a3fFEF';
   const GEMINI_API_KEY = 'AIzaSyDypXKVdmg7_PTGyFbqCHMEwAMMRmUIAK4';
   const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
@@ -149,116 +148,69 @@ const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress,
     return metrics;
   };
 
+
   const generateRecommendations = (metrics, userType) => {
     const recommendations = [];
-
-    if (userType === 'buyer' && Array.isArray(metrics.opportunities)) {
+    if (userType === 'buyer' && metrics.opportunities) {
       metrics.opportunities.forEach((opp) => {
         recommendations.push({
           type: 'opportunity',
           message: `Potential saving of ${opp.potentialSavings.toFixed(2)}% on ${opp.energyType}`,
-          icon: DollarSign,
+          icon: DollarSign
         });
       });
     } else if (metrics.marketPosition && metrics.avgSellingPrice) {
       Object.entries(metrics.marketPosition).forEach(([energyType, data]) => {
         const avgMarketPrice = data.avgMarketPrice / data.totalListings;
-        const avgSellingPrice =
-          metrics.avgSellingPrice[energyType]?.totalRevenue /
-          metrics.avgSellingPrice[energyType]?.totalAmount;
-
+        const avgSellingPrice = metrics.avgSellingPrice[energyType]?.totalRevenue / 
+                              metrics.avgSellingPrice[energyType]?.totalAmount;
         if (avgMarketPrice > avgSellingPrice) {
           recommendations.push({
             type: 'pricing',
             message: `Consider increasing ${energyType} price to match market average`,
-            icon: TrendingUp,
+            icon: TrendingUp
           });
         }
       });
     }
-
     return recommendations;
   };
 
   const generateAIRecommendations = async (metrics, userType, historicalData) => {
     try {
       const prompt = `
-        As a blockchain energy trading expert, analyze this data and provide specific recommendations:
-        
-        User Type: ${userType}
-        Historical Data: ${JSON.stringify(historicalData)}
+        Analyze this trading data and provide 2 key recommendations in 1-2 sentences each:
+        User: ${userType}
+        History: ${JSON.stringify(historicalData)}
         Metrics: ${JSON.stringify(metrics)}
-        
-        Please provide 3-4 specific, actionable recommendations based on this trading data. Focus on:
-        1. Price optimization strategies based on historical trends
-        2. Trading pattern analysis and suggested improvements
-        3. Market opportunities and potential risks
-        4. Risk management strategies specific to the user's trading history
-        
-        Format each recommendation as a clear, actionable statement.
       `;
 
       const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          },
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 256 },
           safetySettings: [
-            {
-              category: "HARM_CATEGORY_HARASSMENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_HATE_SPEECH",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            }
+            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" }
           ]
         })
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to get AI recommendations');
-      }
-
+      if (!response.ok) throw new Error('Failed to get recommendations');
       const data = await response.json();
-      
-      const aiRecommendations = data.candidates[0].content.parts[0].text
-        .split('\n')
+      return data.candidates[0].content.parts[0].text.split('\n')
         .filter(rec => rec.trim())
+        .slice(0, 2)
         .map(rec => ({
           type: 'ai',
-          message: rec.replace(/^\d+\.\s*/, '').trim(), // Remove numbered bullets if present
+          message: rec.replace(/^\d+\.\s*/, '').trim(),
           icon: Activity
         }));
-
-      return aiRecommendations;
     } catch (error) {
-      console.error('Error generating AI recommendations:', error);
-      return [{
-        type: 'ai',
-        message: 'Unable to generate AI recommendations at this time. Please try again later.',
-        icon: AlertCircle
-      }];
+      console.error('Error:', error);
+      return [{ type: 'ai', message: 'Unable to generate recommendations. Please try again.', icon: AlertCircle }];
     }
   };
 
@@ -281,7 +233,7 @@ const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress,
           metrics = await analyzeProducerMetrics(sellingHistory, activeListings);
         }
 
-        const standardRecommendations = generateRecommendations(metrics, userType);
+        const recommendations = generateRecommendations(metrics, userType);
         const aiRecommendations = await generateAIRecommendations(
           metrics,
           userType,
@@ -290,7 +242,7 @@ const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress,
 
         setAnalysisData({
           metrics,
-          recommendations: standardRecommendations,
+          recommendations,
           historicalData: userType === 'buyer' ? buyingHistory : sellingHistory,
           aiRecommendations,
         });

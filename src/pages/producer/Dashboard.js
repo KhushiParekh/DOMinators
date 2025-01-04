@@ -496,16 +496,9 @@ const ProducerDashboard = () => {
                     >
                         Logout
                     </button>
-                    
-                    <ProfileIcon onClick={handleProfile} className="text-green-700 cursor-pointer" />
+                    <ProfileIcon onClick={handleProfile}  sx={{ color: "white", "&:hover": { color: "#065f46" } }}  />
                               {/* Multilingual Icon */}
-             <IconButton
-              color="inherit"
-              onClick={handleMenuOpen}
-              aria-controls="language-menu"
-              aria-haspopup="true"
-              className="hover:text-green-600"
-            >
+                              <IconButton sx={{ color: "white", "&:hover": { color: "#065f46" } }}>
               <LanguageIcon />
             </IconButton>
                 </div>

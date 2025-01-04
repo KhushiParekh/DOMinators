@@ -303,7 +303,6 @@ const ActiveListings = ({ contract, account }) => {
           <div>
             <label className="block text-sm font-medium mb-1">Amount</label>
             <input
-              type="number"
               className="w-full p-2 border rounded"
               value={listFormData.amount}
               onChange={(e) => setListFormData({...listFormData, amount: e.target.value})}
@@ -313,7 +312,6 @@ const ActiveListings = ({ contract, account }) => {
           <div>
             <label className="block text-sm font-medium mb-1">Price</label>
             <input
-              type="number"
               className="w-full p-2 border rounded"
               value={listFormData.price}
               onChange={(e) => setListFormData({...listFormData, price: e.target.value})}
