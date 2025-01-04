@@ -21,7 +21,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <nav className="flex justify-between items-center">
           <Link to="/" className="text-2xl font-extrabold text-green-600">
-            RECit
+            RECreate
           </Link>
           <div className="flex items-center space-x-6">
             <Link to="/" className="text-gray-600 hover:text-green-600 border-b-2 border-green-600 pb-1 px-1">

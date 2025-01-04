@@ -67,7 +67,7 @@ const Home = () => {
     <div className=" relative min-h-screen bg-gradient-to-br z-11 from-green-50 to-blue-50 ">
      
      
-      <div id="hero-section" className="relative px-7 h-screen w-full flex items-center flex-col justify-center px-4">
+      <div id="hero-section" className="relative pt-5 px-7 h-screen w-full flex items-center flex-col justify-center px-4">
          {/* Overlay content */}
          <Header />
       <div className="relative z-20 text-center max-w-5xl">
