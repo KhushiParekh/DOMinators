@@ -21,7 +21,6 @@ import comapny from "../../assets/comapny.jpg";
 import profilebg from "../../assets/profilebg.png";
 import '../../App.css'
 
-
   
 const ProducerProfile = () => {
   const navigate = useNavigate();
