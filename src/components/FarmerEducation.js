@@ -75,13 +75,13 @@ const FarmerEducation = () => {
 
   const videos = [
     {
-      title: "Understanding Biogas Production",
-      src: require("../assets/video2.mp4"),
+      title: "Understanding Solar Power Production",
+      src: require("../assets/solar"),
        poster: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'%3E%3Crect width='640' height='360' fill='%23004d40'/%3E%3Ctext x='320' y='180' font-family='Arial' font-size='24' fill='white' text-anchor='middle' alignment-baseline='middle'%3EBiogas Production Process%3C/text%3E%3Ccircle cx='320' cy='120' r='40' fill='%2300796b'/%3E%3Cpath d='M280 220 Q320 260 360 220' stroke='%2300796b' fill='none' stroke-width='8'/%3E%3C/svg%3E"
     },
     {
-      title: "Biomass Energy Solutions",
-      src: require("../assets/video1.mp4"),
+      title: "Wind Power Solutions",
+      src: require("../assets/windpower"),
       poster: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'%3E%3Crect width='640' height='360' fill='%23006064'/%3E%3Ctext x='320' y='180' font-family='Arial' font-size='24' fill='white' text-anchor='middle' alignment-baseline='middle'%3EBiomass Energy Solutions%3C/text%3E%3Cpath d='M290 140 L320 100 L350 140 L320 180 Z' fill='%230097a7'/%3E%3Ccircle cx='320' cy='220' r='30' fill='%230097a7'/%3E%3C/svg%3E"
     }
   ];
