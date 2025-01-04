@@ -14,6 +14,7 @@ import ActiveListings from '../../components/ActiveListings';
 import EnergyBalances from '../../components/EnergyBalances';
 import BuyTokensByType from '../../components/BuyTokensByType';
 import ListTokens from '../../components/ListTokens';
+import SpecializedYieldAnalyzer from '../../components/SpecializedAnalyser';
 import abi from "../../abi.json";
 
 const CompanyDashboard = () => {
@@ -222,6 +223,12 @@ const CompanyDashboard = () => {
                     <div className="bg-white rounded-lg shadow-sm p-6">
                         <SellHistory contract={contract} account={account} />
                     </div>
+            
+                      
+                    
+                </div>
+                <div className="mt-6">  
+                <SpecializedYieldAnalyzer contractAddress={contract} contractABI={abi} walletAddress={account} userType="buyer" />
                 </div>
             </main>
         </div>
