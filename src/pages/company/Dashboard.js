@@ -5,38 +5,46 @@ import MarketOverview from '../../components/MarketOverview';
 import CompanyProfile from '../../components/CompanyProfile';
 import RECTrade from '../../components/RECTrade';
 import TransactionHistory from '../../components/TransactionHistory';
-import BuyerProfile from '../../components/BuyerProfile';
 import BuyHistory from '../../components/BuyerHistory';
 import SellHistory from '../../components/SellHistory';
 import { auth } from "../firebase";
 import { toast } from "react-toastify";
 import { AccountCircleOutlined as ProfileIcon } from "@mui/icons-material";
-import BuyTokens from '../../components/BuyToken';
-import RECListings from '../../components/Listings';
+import ActiveListings from '../../components/ActiveListings';
 import EnergyBalances from '../../components/EnergyBalances';
-import abi from '../../abi.json'
-import {  IconButton } from '@mui/material';
-import LanguageIcon from '@mui/icons-material/Language';
+import BuyTokensByType from '../../components/BuyTokensByType';
+import ListTokens from '../../components/ListTokens';
+import abi from "../../abi.json";
+import SpecializedYieldAnalyzer from '../../components/SpecializedAnalyser';
 
 const CompanyDashboard = () => {
     const navigate = useNavigate();
     const [account, setAccount] = useState('');
     const [contract, setContract] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  // Open menu handler
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  // Close menu handler
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+    const [buyerStatus, setBuyerStatus] = useState({ registered: false, approved: false });
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         connectWallet();
     }, []);
+
+    useEffect(() => {
+        if (contract && account) {
+            checkBuyerStatus();
+        }
+    }, [contract, account]);
+
+    const checkBuyerStatus = async () => {
+        try {
+            const status = await contract.getBuyerInfo(account);
+            setBuyerStatus({
+                registered: status.registered,
+                approved: status.approved
+            });
+        } catch (error) {
+            console.error("Error checking buyer status:", error);
+        }
+    };
 
     const connectWallet = async () => {
         try {
@@ -47,9 +55,8 @@ const CompanyDashboard = () => {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 const signer = provider.getSigner();
                 
-                // Replace with your deployed contract address
-                const contractAddress = "0x037A372029C066599eAcbb18c7B9e74fe32D9565";
-                const contractABI = abi; // Insert your contract ABI here
+                const contractAddress = "0xDd0E158E75320cDcf6A87abc60303E96b8a3fFEF";
+                const contractABI = abi;
                 
                 const contract = new ethers.Contract(
                     contractAddress,
@@ -60,6 +67,11 @@ const CompanyDashboard = () => {
                 setAccount(accounts[0]);
                 setContract(contract);
                 toast.success("Wallet connected successfully");
+
+                // Listen for account changes
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    setAccount(accounts[0]);
+                });
             } else {
                 toast.error("Please install MetaMask");
             }
@@ -68,11 +80,32 @@ const CompanyDashboard = () => {
         }
     };
 
+    const registerAsBuyer = async () => {
+        if (!contract || !account) {
+            toast.error("Please connect your wallet first");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const transaction = await contract.registerBuyer();
+            await transaction.wait();
+            
+            await checkBuyerStatus();
+            toast.success("Successfully registered as a buyer!");
+        } catch (error) {
+            console.error("Registration error:", error);
+            toast.error(error.reason || "Error registering as buyer");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleProfile = () => {
         try {
             navigate('/companyprofile');
         } catch (error) {
-            console.log("Error");
+            console.log("Error navigating to profile");
         }
     };
 
@@ -90,7 +123,7 @@ const CompanyDashboard = () => {
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Company Dashboard</h1>
-                <div className="flex items-center gap-4 mr-6">
+                <div className="flex items-center gap-4">
                     {!account ? (
                         <button
                             onClick={connectWallet}
@@ -110,28 +143,45 @@ const CompanyDashboard = () => {
                         Logout
                     </button>
                     <ProfileIcon onClick={handleProfile} className="text-green-700 cursor-pointer" />
-                     {/* Multilingual Icon */}
-            <IconButton
-              color="inherit"
-              onClick={handleMenuOpen}
-              aria-controls="language-menu"
-              aria-haspopup="true"
-              className="hover:text-green-600"
-            >
-              <LanguageIcon />
-            </IconButton>
                 </div>
             </div>
+
+            {account && !buyerStatus.registered && (
+                <div className="mb-6 p-4 bg-white rounded-lg shadow">
+                    <h2 className="text-xl font-semibold mb-2">Register as Buyer</h2>
+                    <p className="mb-4 text-gray-600">
+                        You need to register as a buyer to participate in REC trading.
+                    </p>
+                    <button
+                        onClick={registerAsBuyer}
+                        disabled={isLoading}
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400"
+                    >
+                        {isLoading ? 'Registering...' : 'Register as Buyer'}
+                    </button>
+                </div>
+            )}
+
+            {account && buyerStatus.registered && !buyerStatus.approved && (
+                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-yellow-700">
+                        Your buyer registration is pending approval. Please wait for admin approval to start trading.
+                    </p>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <BuyerProfile contract={contract} account={account} />
                 <MarketOverview contract={contract} account={account} />
                 <RECTrade contract={contract} account={account} />
                 <TransactionHistory contract={contract} account={account} />
                 <BuyHistory contract={contract} account={account} />
                 <SellHistory contract={contract} account={account} />
-                {/* <BuyTokens contract={contract} account={account} /> */}
-                <RECListings contract={contract} account={account}/>
+                <ActiveListings contract={contract} account={account} />
                 <EnergyBalances contract={contract} account={account} />
+            <BuyTokensByType contractAddress="0xDd0E158E75320cDcf6A87abc60303E96b8a3fFEF" />
+                <ActiveListings contract = {contract} account = {account}/>
+                <ListTokens contract = {contract} account = {account}/>
+                <SpecializedYieldAnalyzer contractAddress = {contract} contractABI= {abi} walletAddress={account} userType ="buyer" />
             </div>
         </div>
     );
