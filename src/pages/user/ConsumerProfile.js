@@ -18,7 +18,7 @@ import { doc, getDoc, updateDoc, arrayUnion, collection, getDocs } from "firebas
 import { toast } from "react-toastify";
 
 const ConsumerProfile = () => {
-  const [activeTab, setActiveTab] = useState("leaderboard");
+  const [activeTab, setActiveTab] = useState("achievements");
   const [userDetails, setUserDetails] = useState(null);
   const [isRedeemModalOpen, setIsRedeemModalOpen] = useState(false);
   const [bio, setBio] = useState("");
@@ -27,9 +27,10 @@ const ConsumerProfile = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const tabs = [
+    { id: "achievements", label: "Achievements" },
     { id: "leaderboard", label: "Leaderboard" },
     { id: "challenges", label: "Challenges" },
-    { id: "achievements", label: "Achievements" },
+    
   ];
 
   const achievements = [
@@ -69,6 +70,44 @@ const ConsumerProfile = () => {
       type: "badge"
     }
   ];
+ 
+  useEffect(() => {
+    // Inject Naker.io script dynamically
+    const script = document.createElement("script");
+    script.setAttribute("data-who", "💎 Made with naker.io 💎");
+    script.src =
+      "https://d23jutsnau9x47.cloudfront.net/back/v1.0.9/viewer.js";
+    script.setAttribute(
+      "data-option",
+      JSON.stringify({
+        environment: {
+          gradient: "radial",
+          sensitivity: 0.8,
+          colorStart: [59,130,246,1],
+          colorEnd: [68,188,112,1],
+        },
+        particle: {
+          life: 5,
+          power: 0.045,
+          texture:
+            "https://res.cloudinary.com/naker-io/image/upload/v1566560053/circle_05.png",
+          number: 101,
+          colorStart: [116, 129, 92, 0.13],
+          colorEnd: [198,188,107,0.94],
+          sizeStart: 1.57,
+          sizeEnd: 3.14,
+          direction1: { x: 100, y: 100, z: 100 },
+          direction2: { x: -100, y: -100, z: -100 },
+        },
+      })
+    );
+    document.body.appendChild(script);
+
+    return () => {
+      // Cleanup script on component unmount
+      document.body.removeChild(script);
+    };
+  }, []);
 
   useEffect(() => {
     fetchUserData();
@@ -341,7 +380,9 @@ const ConsumerProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+    <div className="profile-container">
+       <div className="content">
+    <div className="min-h-screen bg-gradient-to-br from-green-500/10 via-blue-500/10 to-purple-50">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         <div className="flex items-center space-x-4">
           <button
@@ -515,6 +556,8 @@ const ConsumerProfile = () => {
         </div>
       </div>
       {isRedeemModalOpen && <RedeemModal />}
+    </div>
+    </div>
     </div>
   );
 };

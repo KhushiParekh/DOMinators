@@ -11,6 +11,7 @@ import ConsumerDB from './pages/user/Dashboard';
 // import Profile from './pages/profile'
 import CompanyProfile from './pages/company/CompanyProfile';
 import ProducerProfile from './pages/producer/ProducerProfile';
+import ConsumerProfile from './pages/user/ConsumerProfile';
 import GTranslate from './components/GTranslate';
 import { AuthProvider } from './context/AuthContext';
 import Community from './components/Community';
@@ -157,7 +158,15 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        
+         <Route
+        path='/consumerprofile' element={<ConsumerProfile/>}
+        />
+         <Route
+          path="*"
+          element={
+            <Navigate to="/" replace />
+          }
+        />
        <Route path='/community' element={<Community/>}/>
 
       </Routes>

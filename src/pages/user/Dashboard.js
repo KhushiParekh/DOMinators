@@ -1,28 +1,26 @@
- import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Gift,
   Star,
-  Camera,
   Users,
   Award,
   TreeDeciduous,
-  Upload,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { toast } from "react-toastify";
 import { AccountCircleOutlined as ProfileIcon } from "@mui/icons-material";
 import { IconButton } from '@mui/material';
 import LanguageIcon from '@mui/icons-material/Language';
-import BillAnalysis from '../../components/BillAnalysis'
-
+import BillAnalysis from '../../components/BillAnalysis';
+import { doc, getDoc } from 'firebase/firestore';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
-  const [user] = useState({
-    name: "Jane Cooper",
-    email: "jane@example.com",
-    greenPoints: 1500,
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+    greenPoints: 0,
     achievements: [
       {
         id: 1,
@@ -41,7 +39,7 @@ const UserDashboard = () => {
     ],
   });
 
-  const rewards = [
+  const [rewards] = useState([
     {
       title: "10% Off Solar Installation",
       points: 2000,
@@ -66,17 +64,46 @@ const UserDashboard = () => {
       category: "Partner",
       expiresIn: "20 days",
     },
-  ];
+  ]);
 
-  async function handleProfile() {
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const userDocRef = doc(db, "Consumers", currentUser.uid);
+          const userDocSnapshot = await getDoc(userDocRef);
+          
+          if (userDocSnapshot.exists()) {
+            const data = userDocSnapshot.data();
+            setUserData(prevState => ({
+              ...prevState,
+              name: data.name || "Anonymous User",
+              email: currentUser.email,
+              greenPoints: data.greenPoints || 0,
+            }));
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        toast.error("Error loading user data", {
+          position: "bottom-center",
+        });
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const handleProfile = () => {
     try {
       navigate("/consumerprofile");
     } catch (error) {
       console.log("Error");
     }
-  }
+  };
 
-  async function handleLogout() {
+  const handleLogout = async () => {
     try {
       await auth.signOut();
       navigate("/login");
@@ -88,139 +115,141 @@ const UserDashboard = () => {
         position: "bottom-center",
       });
     }
-  }
-
-  // const handleBillUpload = () => {
-  //   // In real implementation, this would handle file upload and OCR processing
-  //   alert("Bill upload functionality would be implemented here");
-  // };
-
-  const handleGridReturnUpload = () => {
-    // In real implementation, this would handle grid return bill processing
-    alert("Grid return bill upload functionality would be implemented here");
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">User Dashboard</h1>
-        <div className="flex items-center gap-4 mr-6">
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Logout
-          </button>
-          <ProfileIcon onClick={handleProfile} className="text-green-700 cursor-pointer" />
-           {/* Multilingual Icon */}
-           <IconButton
-              color="inherit"
-             
-              aria-controls="language-menu"
-              aria-haspopup="true"
-              className="hover:text-green-600 "
+    <div className="min-h-screen bg-gradient-to-br from-green-500/10 to-blue-500/50">
+      {/* Navigation */}
+      <nav className="bg-gray-900  shadow-sm px-6 py-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center space-x-3 ">
+            
+            <h1 className="text-2xl font-semibold text-green-600 ml-5">
+              User Dashboard
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
             >
+              Logout
+            </button>
+            <IconButton 
+              onClick={handleProfile}
+              className="text-green-500 hover:text-green-800"
+            >
+              <ProfileIcon />
+            </IconButton>
+            <IconButton className="text-gray-600 hover:text-green-800">
               <LanguageIcon />
             </IconButton>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* User Profile and Points */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="bg-green-100 p-3 rounded-full">
-              <Users className="w-6 h-6 text-green-600" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold">{user.name}</h2>
-              <p className="text-gray-600">{user.email}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2 mb-6">
-            <Star className="w-5 h-5 text-green-600" />
-            <span className="text-xl font-bold">
-              {user.greenPoints} Green Points
-            </span>
-          </div>
-
-          <div className="space-y-4">
-            <button
-              // onClick={handleBillUpload}
-              className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              {/* <Camera className="w-5 h-5" />
-              <span>Upload Energy Bill</span> */}
-              <BillAnalysis/>
-            </button>
-            <button
-              onClick={handleGridReturnUpload}
-              className="w-full flex items-center justify-center space-x-2 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <Upload className="w-5 h-5" />
-              <span>Upload Grid Return Bill</span>
-            </button>
           </div>
         </div>
+      </nav>
 
-        {/* Achievements */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center space-x-2 mb-6">
-            <Award className="w-6 h-6 text-yellow-600" />
-            <h2 className="text-xl font-bold">Achievements</h2>
-          </div>
-          <div className="space-y-4">
-            {user.achievements.map((achievement) => (
-              <div key={achievement.id} className="border rounded-lg p-4">
-                <h3 className="font-semibold">{achievement.title}</h3>
-                <p className="text-gray-600 text-sm">
-                  {achievement.description}
-                </p>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* User Stats */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center space-x-4">
+              <div className="bg-green-100 p-3 rounded-lg">
+                <Users className="w-6 h-6 text-green-600" />
               </div>
-            ))}
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800">{userData.name}</h2>
+                <p className="text-gray-600">{userData.email}</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2 bg-green-100 px-4 py-2 rounded-lg">
+              <Star className="w-5 h-5 text-green-600" />
+              <span className="text-lg font-semibold text-gray-800">
+                {userData.greenPoints} Points
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Rewards */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center space-x-2">
-              <Gift className="w-6 h-6 text-purple-600" />
-              <h2 className="text-xl font-bold">Available Rewards</h2>
-            </div>
+        {/* Rest of the component remains the same */}
+        {/* Bill Analysis */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 flex justify-center">
+          <div className="w-full md:w-1/2">
+            <BillAnalysis />
           </div>
-          <div className="space-y-4">
-            {rewards.map((reward, index) => (
-              <div key={index} className="border rounded-lg p-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-semibold">{reward.title}</h3>
-                  <span className="text-green-600 font-medium">
-                    {reward.points} pts
-                  </span>
+        </div>
+
+        {/* Three Column Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Achievements Card */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="bg-yellow-100 p-2 rounded-lg">
+                <Award className="w-5 h-5 text-yellow-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800">Achievements</h3>
+            </div>
+            <div className="space-y-3">
+              {userData.achievements.map((achievement) => (
+                <div
+                  key={achievement.id}
+                  className="bg-gray-50 rounded-md p-3 hover:bg-gray-100 transition-colors"
+                >
+                  <h4 className="font-medium text-gray-800">{achievement.title}</h4>
+                  <p className="text-gray-600 text-sm mt-1">{achievement.description}</p>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600 mt-2">
-                  <span>{reward.category}</span>
-                  <span>Expires in {reward.expiresIn}</span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Community Events */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center space-x-2 mb-6">
-            <TreeDeciduous className="w-6 h-6 text-green-600" />
-            <h2 className="text-xl font-bold">Upcoming Events</h2>
-          </div>
-          <div className="space-y-4">
-            {user.events.map((event) => (
-              <div key={event.id} className="border rounded-lg p-4">
-                <h3 className="font-semibold">{event.title}</h3>
-                <p className="text-gray-600 text-sm">Date: {event.date}</p>
+          {/* Rewards Card */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="bg-purple-100 p-2 rounded-lg">
+                <Gift className="w-5 h-5 text-purple-600" />
               </div>
-            ))}
+              <h3 className="text-lg font-semibold text-gray-800">Rewards</h3>
+            </div>
+            <div className="space-y-3">
+              {rewards.map((reward, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-50 rounded-md p-3 hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-medium text-gray-800">{reward.title}</h4>
+                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
+                      {reward.points} pts
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center mt-2 text-sm">
+                    <span className="text-gray-600">{reward.category}</span>
+                    <span className="text-gray-500">{reward.expiresIn}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Events Card */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="bg-green-100 p-2 rounded-lg">
+                <TreeDeciduous className="w-5 h-5 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800">Events</h3>
+            </div>
+            <div className="space-y-3">
+              {userData.events.map((event) => (
+                <div
+                  key={event.id}
+                  className="bg-gray-50 rounded-md p-3 hover:bg-gray-100 transition-colors"
+                >
+                  <h4 className="font-medium text-gray-800">{event.title}</h4>
+                  <p className="text-sm text-blue-600 mt-2">{event.date}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
