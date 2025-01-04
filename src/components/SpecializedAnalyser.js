@@ -3,10 +3,11 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'r
 import { AlertCircle, TrendingUp, DollarSign, Activity } from 'lucide-react';
 import { ethers } from 'ethers';
 
+
 const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress, userType }) => {
   const GEMINI_API_KEY = 'AIzaSyDypXKVdmg7_PTGyFbqCHMEwAMMRmUIAK4';
   const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-
+   contractAddress = "0xDd0E158E75320cDcf6A87abc60303E96b8a3fFEF";
   const [contract, setContract] = useState(null);
   const [analysisData, setAnalysisData] = useState({
     metrics: {
@@ -280,7 +281,7 @@ const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress,
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
+    <div className="w-full items-center mx-auto  bg-white shadow-lg rounded-lg p-6 px-7">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900">
           {userType === 'buyer' ? 'Buyer Analytics Dashboard' : 'Producer Analytics Dashboard'}

@@ -124,7 +124,7 @@ const ListTokens = ({ contractAddress, walletAddress }) => {
       const gasLimit = gasEstimate.mul(120).div(100);
 
       const tx = await contract.listTokens(
-        amountInWei,
+        amountInWei, 
         priceInWei,
         energyType,
         { gasLimit }

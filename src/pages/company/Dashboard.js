@@ -10,12 +10,16 @@ import TransactionHistory from '../../components/TransactionHistory';
 import BuyHistory from '../../components/BuyerHistory';
 import SellHistory from '../../components/SellHistory';
 import { auth } from "../firebase";
-import ActiveListings from '../../components/ActiveListings';
+import Listings from '../../components/Listings';
 import EnergyBalances from '../../components/EnergyBalances';
 import BuyTokensByType from '../../components/BuyTokensByType';
 import ListTokens from '../../components/ListTokens';
 import SpecializedYieldAnalyzer from '../../components/SpecializedAnalyser';
 import abi from "../../abi.json";
+import {  IconButton } from '@mui/material';
+import LanguageIcon from '@mui/icons-material/Language';
+import { AccountCircleOutlined as ProfileIcon } from '@mui/icons-material';
+import RECListings from '../../components/Listings';
 
 const CompanyDashboard = () => {
     const navigate = useNavigate();
@@ -23,7 +27,17 @@ const CompanyDashboard = () => {
     const [contract, setContract] = useState(null);
     const [buyerStatus, setBuyerStatus] = useState({ registered: false, approved: false });
     const [isLoading, setIsLoading] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
 
+    // Open menu handler
+    const handleMenuOpen = (event) => {
+      setAnchorEl(event.currentTarget);
+    };
+  
+    // Close menu handler
+    const handleMenuClose = () => {
+      setAnchorEl(null);
+    };
     useEffect(() => {
         connectWallet();
     }, []);
@@ -120,47 +134,43 @@ const CompanyDashboard = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-500/10 to-blue-500/50">
-            {/* Navigation Bar */}
-            <nav className="bg-white border-b border-gray-200 fixed w-full z-30 top-0">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <h1 className="text-xl font-semibold text-gray-900">Company Dashboard</h1>
-                        <div className="flex items-center space-x-4">
-                            {!account ? (
-                                <button
-                                    onClick={connectWallet}
-                                    className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
-                                >
-                                    <Wallet className="mr-2 h-4 w-4" />
-                                    Connect Wallet
-                                </button>
-                            ) : (
-                                <div className="flex items-center space-x-4">
-                                    <span className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
-                                        {account.slice(0, 6)}...{account.slice(-4)}
-                                    </span>
-                                    <button
-                                        onClick={handleProfile}
-                                        className="p-2 hover:bg-gray-100 rounded-md transition-colors"
-                                    >
-                                        <UserCircle className="h-5 w-5 text-gray-600" />
-                                    </button>
-                                    <button
-                                        onClick={handleLogout}
-                                        className="inline-flex items-center px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors"
-                                    >
-                                        <LogOut className="mr-2 h-4 w-4" />
-                                        Logout
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                       <div className="flex justify-between items-center mb-6 py-4 px-6 bg-gray-900 shadow-sm z-11 w-screen absolute top-0 right-0  ">
+                <h1 className="text-2xl font-bold text-green-500">Company Dashboard</h1>
+                <div className="flex items-center gap-4 mr-6">
+                    {!account ? (
+                        <button
+                            onClick={connectWallet}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                            Connect Wallet
+                        </button>
+                    ) : (
+                        <span className="text-sm text-gray-600">
+                            {account.slice(0, 6)}...{account.slice(-4)}
+                        </span>
+                    )}
+                    <button
+                        onClick={handleLogout}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    >
+                        Logout
+                    </button>
+                    <ProfileIcon onClick={handleProfile} className="text-green-700 cursor-pointer" />
+                              {/* Multilingual Icon */}
+             <IconButton
+              color="inherit"
+              onClick={handleMenuOpen}
+              aria-controls="language-menu"
+              aria-haspopup="true"
+              className="text-green-500 hover:text-green-600"
+            >
+              <LanguageIcon />
+            </IconButton>
                 </div>
-            </nav>
+            </div>
 
             {/* Main Content */}
-            <main className="pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <main className="pt-24 px-2 sm:px-6 lg:px-2 max-w-7xl flex flex-col mx-auto">
                 {/* Registration Status */}
                 {account && !buyerStatus.registered && (
                     <div className="bg-white rounded-lg shadow-sm mb-6 p-6">
@@ -193,28 +203,27 @@ const CompanyDashboard = () => {
 
                 {/* Dashboard Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                    <div className="bg-white rounded-lg shadow-sm p-6 col-span-full lg:col-span-2">
-                        <MarketOverview contract={contract} account={account} />
-                    </div>
+                    
                     <div className="bg-white rounded-lg shadow-sm p-6">
                         <EnergyBalances contract={contract} account={account} />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div className="bg-white rounded-lg shadow-sm p-6">
-                        <RECTrade contract={contract} account={account} />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    
+                    <div className="bg-white w-full col-span-full rounded-lg shadow-sm ">
+                        <Listings contract={contract} account={account} />
                     </div>
-                    <div className="bg-white rounded-lg shadow-sm p-6">
-                        <ActiveListings contract={contract} account={account} />
-                    </div>
-                    <div className="bg-white rounded-lg shadow-sm p-6">
+                    {/* <div className="bg-white rounded-lg shadow-sm p-6">
                         <BuyTokensByType contractAddress="0xDd0E158E75320cDcf6A87abc60303E96b8a3fFEF" />
-                    </div>
+                    </div> */}
                     <div className="bg-white rounded-lg shadow-sm p-6 col-span-full lg:col-span-2">
                         <TransactionHistory contract={contract} account={account} />
                     </div>
-                    <div className="bg-white rounded-lg shadow-sm p-6">
+                    <div className="bg-white rounded-lg shadow-sm p-2 pt-5">
+                        <RECTrade contract={contract} account={account} />
+                    </div>
+                    {/* <div className="bg-white rounded-lg shadow-sm p-6">
                         <ListTokens contract={contract} account={account} />
                     </div>
                     <div className="bg-white rounded-lg shadow-sm p-6">
@@ -222,12 +231,12 @@ const CompanyDashboard = () => {
                     </div>
                     <div className="bg-white rounded-lg shadow-sm p-6">
                         <SellHistory contract={contract} account={account} />
-                    </div>
+                    </div> */}
             
                       
                     
                 </div>
-                <div className="mt-6">  
+                <div className="mt-6 w-[100%]  " >  
                 <SpecializedYieldAnalyzer contractAddress={contract} contractABI={abi} walletAddress={account} userType="buyer" />
                 </div>
             </main>
