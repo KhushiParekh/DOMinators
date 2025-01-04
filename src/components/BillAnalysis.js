@@ -295,7 +295,7 @@ const BillAnalysis = () => {
       </div>
 
       {/* File Upload Section */}
-      <div className="border-2 border-dashed rounded-lg p-8 text-center mb-6">
+      <div className="border-2 border-dashed rounded-lg p-8 text-center mb-6 bg-gradient-to-br from-blue-500/50 to-green-500/10 ">
         <input
           type="file"
           onChange={handleFileChange}
@@ -304,7 +304,7 @@ const BillAnalysis = () => {
           id="file-upload"
         />
         <label htmlFor="file-upload" className="cursor-pointer">
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center ">
             <Upload className="w-12 h-12 text-gray-400 mb-2" />
             <span className="text-sm text-gray-500">Click to upload your bill</span>
           </div>
