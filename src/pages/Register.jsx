@@ -1,20 +1,28 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { auth, db } from "./firebase";
 import { setDoc, doc } from "firebase/firestore";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import { Building2, User, Users } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 function Register() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [userType, setUserType] = useState("");
   const [gst, setGst] = useState("");
   const [address, setAddress] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -69,20 +77,29 @@ function Register() {
 
         await setDoc(doc(db, collectionName, user.uid), userData);
         
-        toast.success("User Registered Successfully!", {
+        toast.success("Registration successful!", {
           position: "top-center",
+          autoClose: 2000,
         });
+
+        // Wait for toast to be shown before navigating
+        setTimeout(() => {
+          navigate("/home");
+        }, 2000);
       }
     } catch (error) {
-      console.error(error.message);
-      toast.error(error.message, {
-        position: "bottom-center",
+      toast.error(error.message || "Registration failed. Please try again.", {
+        position: "top-center",
+        autoClose: 5000
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+      <ToastContainer />
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         <h2 className="text-3xl font-bold text-green-800 mb-6 text-center">Create Account</h2>
 
@@ -95,6 +112,7 @@ function Register() {
           ].map(({ type, icon: Icon, label }) => (
             <button
               key={type}
+              type="button"
               onClick={() => setUserType(type)}
               className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-all ${
                 userType === type 
@@ -170,9 +188,14 @@ function Register() {
 
           <button
             type="submit"
-            className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            disabled={isSubmitting}
+            className={`w-full py-3 bg-green-600 text-white rounded-lg transition-colors ${
+              isSubmitting 
+                ? 'opacity-50 cursor-not-allowed' 
+                : 'hover:bg-green-700'
+            }`}
           >
-            Create Account
+            {isSubmitting ? 'Creating Account...' : 'Create Account'}
           </button>
 
           <p className="text-center text-sm text-gray-600">
