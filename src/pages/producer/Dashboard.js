@@ -700,16 +700,19 @@ const ProducerDashboard = () => {
         </div>
                 {account && (
                     <>
-                        {/* <AddEnergy contract={contract} account={account} /> */}
+                      
                         <TransferToken contract={contract}  />
+                        <AddEnergy contract={contract} account={account} />
+                        <ReclaimVerification />
                         {/* <BurnToken contract={contract} account={account} /> */}
                     </>
                 )}
                 {/* <TokenListings contract={contract} account={account} /> */}
-                <ProducerManagement contract={contract} account={account} />
+                {/* <ProducerManagement contract={contract} account={account} /> */}
                
-                <EnergyBalances contract={contract} account={account} />
-                <ReclaimVerification />
+                {/* <EnergyBalances contract={contract} account={account} /> */}
+                 *
+                
                 {/* <ListTokensForm contractAddress={contract} walletAddress={account} /> */}
             </div>
         </div>
