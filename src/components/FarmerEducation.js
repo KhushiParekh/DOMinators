@@ -76,15 +76,16 @@ const FarmerEducation = () => {
   const videos = [
     {
       title: "Understanding Solar Power Production",
-      src: require("../assets/solar"),
-       poster: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'%3E%3Crect width='640' height='360' fill='%23004d40'/%3E%3Ctext x='320' y='180' font-family='Arial' font-size='24' fill='white' text-anchor='middle' alignment-baseline='middle'%3EBiogas Production Process%3C/text%3E%3Ccircle cx='320' cy='120' r='40' fill='%2300796b'/%3E%3Cpath d='M280 220 Q320 260 360 220' stroke='%2300796b' fill='none' stroke-width='8'/%3E%3C/svg%3E"
+      src: require("../assets/solar.mp4"),
+      poster: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'%3E%3Crect width='640' height='360' fill='%23ffcc00'/%3E%3Ccircle cx='320' cy='180' r='80' fill='%23ffeb3b'/%3E%3Cline x1='320' y1='30' x2='320' y2='80' stroke='%23ffa000' stroke-width='6'/%3E%3Cline x1='320' y1='280' x2='320' y2='330' stroke='%23ffa000' stroke-width='6'/%3E%3Cline x1='190' y1='180' x2='240' y2='180' stroke='%23ffa000' stroke-width='6'/%3E%3Cline x1='400' y1='180' x2='450' y2='180' stroke='%23ffa000' stroke-width='6'/%3E%3Cline x1='250' y1='100' x2='280' y2='140' stroke='%23ffa000' stroke-width='6'/%3E%3Cline x1='360' y1='220' x2='390' y2='260' stroke='%23ffa000' stroke-width='6'/%3E%3Cline x1='360' y1='140' x2='390' y2='100' stroke='%23ffa000' stroke-width='6'/%3E%3Cline x1='250' y1='260' x2='280' y2='220' stroke='%23ffa000' stroke-width='6'/%3E%3C/svg%3E"
     },
     {
       title: "Wind Power Solutions",
-      src: require("../assets/windpower"),
-      poster: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'%3E%3Crect width='640' height='360' fill='%23006064'/%3E%3Ctext x='320' y='180' font-family='Arial' font-size='24' fill='white' text-anchor='middle' alignment-baseline='middle'%3EBiomass Energy Solutions%3C/text%3E%3Cpath d='M290 140 L320 100 L350 140 L320 180 Z' fill='%230097a7'/%3E%3Ccircle cx='320' cy='220' r='30' fill='%230097a7'/%3E%3C/svg%3E"
+      src: require("../assets/windpower.mp4"),
+      poster: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'%3E%3Crect width='640' height='360' fill='%23006064'/%3E%3Ccircle cx='320' cy='180' r='30' fill='%2394d2e9'/%3E%3Cpath d='M320 50 L340 100 L300 100 Z' fill='%230098a7'/%3E%3Cpath d='M320 310 L340 260 L300 260 Z' fill='%230098a7'/%3E%3Cpath d='M220 180 L270 160 L270 200 Z' fill='%230098a7'/%3E%3Cpath d='M420 180 L370 160 L370 200 Z' fill='%230098a7'/%3E%3C/svg%3E"
     }
   ];
+  
 
   const toggleFullscreen = (index) => {
     if (fullscreenVideo === index) {
