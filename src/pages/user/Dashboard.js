@@ -114,33 +114,37 @@ const UserDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-500/10 to-blue-500/50">
       {/* Navigation */}
-      <nav className="bg-gray-900  shadow-sm px-6 py-4">
+      <nav className="bg-gray-900/95 backdrop-blur-sm shadow-lg px-6 py-4 sticky top-0 z-50 transition-all duration-300">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-3 ">
-            <h1 className="text-2xl font-semibold text-green-600 ml-5">
+          <div className="flex items-center space-x-3">
+            <h1 className="text-2xl font-semibold text-green-400 ml-5 hover:text-green-300 transition-colors duration-300">
               User Dashboard
             </h1>
           </div>
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/community")}
-              className="px-4 py-2 bg-green-600/60 text-white text-sm rounded-md font-semibold hover:bg-green-700 transform hover:scale-105 transition-all"
+              className="px-4 py-2 bg-green-600 text-white text-sm rounded-md font-semibold hover:bg-green-500 transform hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20"
             >
               Join Community
             </button>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-400 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/20"
             >
               Logout
             </button>
             <IconButton
               onClick={handleProfile}
-              sx={{ color: "white", "&:hover": { color: "#065f46" } }} 
+              className="transition-transform duration-300 hover:scale-110"
+              sx={{ color: "white", "&:hover": { color: "#4ade80" } }}
             >
               <ProfileIcon />
             </IconButton>
-            <IconButton sx={{ color: "white", "&:hover": { color: "#065f46" } }}>
+            <IconButton 
+              className="transition-transform duration-300 hover:scale-110"
+              sx={{ color: "white", "&:hover": { color: "#4ade80" } }}
+            >
               <LanguageIcon />
             </IconButton>
           </div>
@@ -148,12 +152,12 @@ const UserDashboard = () => {
       </nav>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
         {/* User Stats */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6 transform hover:scale-[1.02] transition-all duration-300">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center space-x-4">
-              <div className="bg-green-100 p-3 rounded-lg">
+              <div className="bg-green-100 p-3 rounded-lg shadow-sm">
                 <Users className="w-6 h-6 text-green-600" />
               </div>
               <div>
@@ -163,8 +167,8 @@ const UserDashboard = () => {
                 <p className="text-gray-600">{userData.email}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2 bg-green-100 px-4 py-2 rounded-lg">
-              <Star className="w-5 h-5 text-green-600" />
+            <div className="flex items-center space-x-2 bg-green-100 px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+              <Star className="w-5 h-5 text-green-600 animate-pulse" />
               <span className="text-lg font-semibold text-gray-800">
                 {userData.greenPoints} Points
               </span>
@@ -172,10 +176,9 @@ const UserDashboard = () => {
           </div>
         </div>
 
-        {/* Rest of the component remains the same */}
         {/* Bill Analysis */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 flex justify-center">
-          <div className="w-full md:w-1/2">
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6 transform hover:scale-[1.02] transition-all duration-300">
+          <div className="w-full md:w-1/2 mx-auto">
             <BillAnalysis />
           </div>
         </div>
@@ -183,9 +186,9 @@ const UserDashboard = () => {
         {/* Three Column Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Achievements Card */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6 transform hover:scale-[1.02] transition-all duration-300">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="bg-yellow-100 p-2 rounded-lg">
+              <div className="bg-yellow-100 p-2 rounded-lg shadow-sm">
                 <Award className="w-5 h-5 text-yellow-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-800">
@@ -193,10 +196,11 @@ const UserDashboard = () => {
               </h3>
             </div>
             <div className="space-y-3">
-              {userData.achievements.map((achievement) => (
+              {userData.achievements.map((achievement, index) => (
                 <div
                   key={achievement.id}
-                  className="bg-gray-50 rounded-md p-3 hover:bg-gray-100 transition-colors"
+                  className="bg-gray-50/80 rounded-lg p-3 hover:bg-gray-100 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <h4 className="font-medium text-gray-800">
                     {achievement.title}
@@ -210,9 +214,9 @@ const UserDashboard = () => {
           </div>
 
           {/* Rewards Card */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6 transform hover:scale-[1.02] transition-all duration-300">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="bg-purple-100 p-2 rounded-lg">
+              <div className="bg-purple-100 p-2 rounded-lg shadow-sm">
                 <Gift className="w-5 h-5 text-purple-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-800">Rewards</h3>
@@ -221,13 +225,14 @@ const UserDashboard = () => {
               {rewards.map((reward, index) => (
                 <div
                   key={index}
-                  className="bg-gray-50 rounded-md p-3 hover:bg-gray-100 transition-colors"
+                  className="bg-gray-50/80 rounded-lg p-3 hover:bg-gray-100 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="flex justify-between items-start">
                     <h4 className="font-medium text-gray-800">
                       {reward.title}
                     </h4>
-                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm shadow-sm">
                       {reward.points} pts
                     </span>
                   </div>
@@ -241,18 +246,19 @@ const UserDashboard = () => {
           </div>
 
           {/* Events Card */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6 transform hover:scale-[1.02] transition-all duration-300">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="bg-green-100 p-2 rounded-lg">
+              <div className="bg-green-100 p-2 rounded-lg shadow-sm">
                 <TreeDeciduous className="w-5 h-5 text-green-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-800">Events</h3>
             </div>
             <div className="space-y-3">
-              {userData.events.map((event) => (
+              {userData.events.map((event, index) => (
                 <div
                   key={event.id}
-                  className="bg-gray-50 rounded-md p-3 hover:bg-gray-100 transition-colors"
+                  className="bg-gray-50/80 rounded-lg p-3 hover:bg-gray-100 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <h4 className="font-medium text-gray-800">{event.title}</h4>
                   <p className="text-sm text-blue-600 mt-2">{event.date}</p>

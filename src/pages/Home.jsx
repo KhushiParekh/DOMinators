@@ -9,6 +9,8 @@ import Footer from '../components/Footer';
 import { BsChatDots } from 'react-icons/bs'; // Using react-icons for a chat icon
 import { motion } from 'framer-motion';
 import { useNavigate } from "react-router-dom";
+import { TextGenerateEffect } from "../components/ui/text-generate-effect";
+import { HoverBorderGradient } from "../components/ui/hover-border-gradient";
 
 const Home = () => {
   const [isChatBotVisible, setIsChatBotVisible] = useState(false);
@@ -17,7 +19,8 @@ const Home = () => {
     setIsChatBotVisible(!isChatBotVisible);
   };
 
- 
+  const words1 = `Make your energy trasactions`;
+  const words2 = `Green`;
   useEffect(() => {
     // Inject Naker.io script dynamically
     const script = document.createElement("script");
@@ -70,21 +73,22 @@ const Home = () => {
       <div id="hero-section" className="relative pt-5 px-7 h-screen w-full flex items-center flex-col justify-center px-4">
          {/* Overlay content */}
          <Header />
-      <div className="relative z-20 text-center max-w-5xl">
+      <div className="relative z-20 text-center mt-5  max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
+          className=""
         >
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-white">
-            Make your energy trasactions
+          <h1 className="mt-10 mb-6 font-bold bg-clip-text text-transparent bg-white">
+            <TextGenerateEffect words={words1} />
             <br /> 
-            <span className=" p-1 text-7xl font-bold text-green-500">Green</span> 
+            <span className="text-6xl text-green-500">Green</span> 
           </h1>
         </motion.div>
 
         <motion.p 
-          className="text-xl md:text-2xl mb-8 text-gray-700 max-w-3xl mx-auto"
+          className="text-xl md:text-2xl mb-8 text-gray-800 max-w-3xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
@@ -98,12 +102,25 @@ const Home = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
-          <button onClick={() => navigate("/login")} className="px-8 py-4 bg-violet-600/60 text-white rounded-full font-semibold hover:bg-violet-700 transform hover:scale-105 transition-all">
+
+          <HoverBorderGradient
+            as="button"
+            containerClassName="p-1 rounded-full"
+            className="bg-violet-800 text-white font-semibold hover:bg-violet-700 transform hover:scale-105 transition-all"
+            onClick={() => navigate("/login")}
+          >
             Get Started Now
-          </button>
-          <button onClick={() => navigate("/login")} className="px-8 py-4 border-2 border-violet-500 text-violet-600 rounded-full font-semibold hover:bg-violet-500/60 transform hover:scale-105 transition-all">
+          </HoverBorderGradient>
+
+          <HoverBorderGradient
+            as="button"
+            containerClassName="p-1 rounded-full"
+            className="border-2 border-violet-800 text-violet-900 font-semibold hover:bg-violet-500/60 transform hover:scale-105 transition-all"
+            onClick={() => navigate("/login")}
+          >
             Learn More
-          </button>
+          </HoverBorderGradient>
+
         </motion.div>
 
         {/* Stats */}

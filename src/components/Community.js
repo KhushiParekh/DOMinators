@@ -4,6 +4,7 @@ import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, delete
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { Heart, MessageCircle, Trash2, Send, X } from 'lucide-react';
+import ChatComponent from './chat';
 
 const Community = () => {
   const [messages, setMessages] = useState([]);
@@ -230,6 +231,7 @@ const Community = () => {
                     </button>
                   </div>
                 )}
+                <ChatComponent />
               </div>
             </div>
           ))}
