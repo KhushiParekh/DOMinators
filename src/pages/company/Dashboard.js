@@ -22,6 +22,8 @@ import { AccountCircleOutlined as ProfileIcon } from '@mui/icons-material';
 import RECListings from '../../components/Listings';
 import OpenAIAgentButton from '../../components/AiChatBot';
 import RECBuyerChatbot from '../../components/AiBuyerChatBot';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 const CompanyDashboard = () => {
     const navigate = useNavigate();
     const [account, setAccount] = useState('');
@@ -29,6 +31,7 @@ const CompanyDashboard = () => {
     const [buyerStatus, setBuyerStatus] = useState({ registered: false, approved: false });
     const [isLoading, setIsLoading] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
+    const [showChatbot, setShowChatbot] = useState(false);
 
     // Open menu handler
     const handleMenuOpen = (event) => {
@@ -213,15 +216,15 @@ const CompanyDashboard = () => {
                     </div> */}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 mb-8 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 mb-8 lg:grid-cols-3 gap-10">
                     
-                    <div className="bg-white w-[95%] ml-8 mb-6 col-span-full rounded-lg shadow-sm ">
+                    <div className="bg-white w-full ml-3 mb-6 col-span-full rounded-lg shadow-sm ">
                         <Listings contract={contract} account={account} />
                     </div>
                     {/* <div className="bg-white rounded-lg shadow-sm p-6">
                         <BuyTokensByType contractAddress="0xDd0E158E75320cDcf6A87abc60303E96b8a3fFEF" />
                     </div> */}
-                    <div className="bg-white x-[95%] ml-4 rounded-lg shadow-sm p-3 col-span-full lg:col-span-2">
+                    <div className="bg-white x-full ml-5 rounded-lg shadow-sm p-3  col-span-full lg:col-span-2">
                         <TransactionHistory contract={contract} account={account} />
                     </div>
                     <div className="bg-white rounded-lg shadow-sm p-2 pt-5">
@@ -245,7 +248,37 @@ const CompanyDashboard = () => {
                     <SpecializedYieldAnalyzer contractAddress={contract} contractABI={abi} walletAddress={account} userType="buyer" />
                     </div>
                 </div>
-                <RECBuyerChatbot/>
+
+                <button
+                    onClick={() => setShowChatbot((prev) => !prev)}
+                    className="fixed bottom-4 left-4 bg-blue-500 text-white px-2 py-2 rounded-full hover:bg-blue-600 transition duration-300 z-50"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 11c0-1.657-1.343-3-3-3S6 9.343 6 11s1.343 3 3 3 3-1.343 3-3zm-4 8h8a4 4 0 004-4V8a4 4 0 00-4-4H8a4 4 0 00-4 4v7a4 4 0 004 4z"
+                      />
+                    </svg>
+                </button>
+
+                {showChatbot && (
+                    <motion.div
+                        initial={{ x: -300, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: -300, opacity: 0 }}
+                        className="fixed bottom-16 left-4 p-1 w-96 h-[610px] bg-white shadow-lg rounded-lg overflow-hidden z-50"
+                    >
+                        <button
+                            onClick={() => setShowChatbot(false)}
+                            className="absolute top-1 right-0.5 text-gray-500 hover:text-gray-700"
+                        >
+                            <X size={20} />
+                        </button>
+                        <RECBuyerChatbot contractAddress={contract} geminiApiKey={'AIzaSyDypXKVdmg7_PTGyFbqCHMEwAMMRmUIAK4'} />
+                    </motion.div>
+                )}
             </main>
         </div>
     );

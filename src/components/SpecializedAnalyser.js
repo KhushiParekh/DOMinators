@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import { AlertCircle, TrendingUp, DollarSign, Activity } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell } from 'recharts';
+import { AlertCircle, TrendingUp, DollarSign, Activity, X, MessageSquare } from 'lucide-react';
 import { ethers } from 'ethers';
+
 
 
 const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress, userType }) => {
@@ -21,6 +22,67 @@ const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showChat, setShowChat] = useState(false);
+
+  // Colors for the donut chart
+  const COLORS = ['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe'];
+
+  // Prepare data for donut chart
+  const getDonutData = () => {
+    if (userType === 'buyer') {
+      return Object.entries(analysisData.metrics.avgPurchasePrice || {}).map(([type, data]) => ({
+        name: type,
+        value: data.totalAmount
+      }));
+    }
+    return Object.entries(analysisData.metrics.avgSellingPrice || {}).map(([type, data]) => ({
+      name: type,
+      value: data.totalRevenue
+    }));
+  };
+
+  const ChatModal = () => (
+    <div className="fixed bottom-4 right-4 w-96 bg-white rounded-lg shadow-xl">
+      <div className="h-[610px] flex flex-col">
+        <div className="p-4 border-b flex justify-between items-center bg-indigo-50 rounded-t-lg">
+          <h3 className="font-semibold text-gray-800">AI Assistant</h3>
+          <button 
+            onClick={() => setShowChat(false)}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {analysisData.aiRecommendations.map((rec, index) => (
+            <div key={index} className="flex space-x-3">
+              <div className="flex-shrink-0">
+                <Activity className="w-5 h-5 text-indigo-500" />
+              </div>
+              <div className="flex-1 bg-indigo-50 rounded-lg p-3">
+                <p className="text-gray-700">{rec.message}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="p-4 border-t">
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              placeholder="Ask a question..."
+              className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600">
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
 
   const isValidAddress = (address) => {
     try {
@@ -317,31 +379,60 @@ const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress,
         </div>
 
         {/* Price Trends */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            {userType === 'buyer' ? 'Purchase Price Trends' : 'Sales Price Trends'}
-          </h3>
-          <div className="h-64 w-full">
-            <LineChart
-              width={600}
-              height={200}
-              data={analysisData.historicalData.map((tx) => ({
-                date: new Date(Number(tx.timestamp) * 1000).toLocaleDateString(),
-                price: Number(tx.price),
-                energyType: tx.energyType,
-              }))}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="price" stroke="#6366f1" />
-            </LineChart>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Price Trends */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {userType === 'buyer' ? 'Purchase Price Trends' : 'Sales Price Trends'}
+            </h3>
+            <div className="h-64">
+              <LineChart
+                width={500}
+                height={200}
+                data={analysisData.historicalData.map((tx) => ({
+                  date: new Date(Number(tx.timestamp) * 1000).toLocaleDateString(),
+                  price: Number(tx.price),
+                  energyType: tx.energyType,
+                }))}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="price" stroke="#6366f1" />
+              </LineChart>
+            </div>
+          </div>
+
+          {/* Distribution Donut Chart */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {userType === 'buyer' ? 'Purchase Distribution' : 'Revenue Distribution'}
+            </h3>
+            <div className="h-64">
+              <PieChart width={500} height={200}>
+                <Pie
+                  data={getDonutData()}
+                  cx={250}
+                  cy={100}
+                  innerRadius={60}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {getDonutData().map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </div>
           </div>
         </div>
-
         {/* Standard Recommendations */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">Market Recommendations</h3>
