@@ -224,6 +224,111 @@ const RECChatbot = () => {
     }
   };
 
+  const formatEther = (wei) => {
+    try {
+      return parseFloat(ethers.utils.formatEther(wei));
+    } catch (error) {
+      return wei.toString();
+    }
+  };
+
+  const formatTransactionDetails = (action) => {
+    const details = [];
+    
+    switch (action.function) {
+      case 'mintTokens':
+        details.push(
+          ['Amount', `${formatEther(action.params.amount)} tokens`],
+          ['Energy Type', action.params.energyType.charAt(0).toUpperCase() + action.params.energyType.slice(1)]
+        );
+        break;
+      
+      case 'burnTokens':
+        details.push(
+          ['Amount', `${formatEther(action.params.amount)} tokens`],
+          ['Energy Type', action.params.energyType.charAt(0).toUpperCase() + action.params.energyType.slice(1)]
+        );
+        break;
+      
+      case 'listTokens':
+        details.push(
+          ['Amount', `${formatEther(action.params.amount)} tokens`],
+          ['Price', `${formatEther(action.params.price)} ETH`],
+          ['Energy Type', action.params.energyType.charAt(0).toUpperCase() + action.params.energyType.slice(1)]
+        );
+        break;
+      
+      case 'cancelListing':
+        details.push(
+          ['Listing ID', action.params.listingId]
+        );
+        break;
+      
+      case 'transferTokens':
+        details.push(
+          ['Recipient', action.params.to],
+          ['Amount', `${formatEther(action.params.amount)} tokens`],
+          ['Energy Type', action.params.energyType.charAt(0).toUpperCase() + action.params.energyType.slice(1)]
+        );
+        break;
+      
+      default:
+        details.push(['Details', 'Unknown transaction type']);
+    }
+    
+    return details;
+  };
+
+  // Update the modal JSX section only
+  const renderModal = () => {
+    if (!showModal || !pendingAction) return null;
+
+    const details = formatTransactionDetails(pendingAction);
+    const functionName = pendingAction.function
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase());
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div className="bg-white p-6 rounded-lg max-w-md w-full">
+          <h2 className="text-xl font-bold mb-4">Confirm Transaction</h2>
+          <div className="mb-6">
+            <div className="bg-blue-50 p-3 rounded-lg mb-4">
+              <h3 className="text-lg font-semibold text-blue-700 mb-2">
+                {functionName}
+              </h3>
+              <div className="space-y-2">
+                {details.map(([label, value], index) => (
+                  <div key={index} className="grid grid-cols-2 gap-2">
+                    <span className="text-sm font-medium text-gray-600">{label}:</span>
+                    <span className="text-sm text-gray-800 break-words">
+                      {typeof value === 'string' && value.startsWith('0x') 
+                        ? `${value.slice(0, 6)}...${value.slice(-4)}`
+                        : value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setShowModal(false)}
+              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => executeTransaction(pendingAction)}
+              className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg transition-colors"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
   return (
     <div className="flex flex-col h-screen max-w-2xl mx-auto p-4 bg-gray-50">
       <div className="mb-4 flex justify-between items-center">
@@ -278,7 +383,7 @@ const RECChatbot = () => {
         </button>
       </form>
 
-      {showModal && (
+      {/* {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white p-6 rounded-lg max-w-md w-full">
             <h2 className="text-xl font-bold mb-4">Confirm Transaction</h2>
@@ -306,7 +411,8 @@ const RECChatbot = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
+      {renderModal()}
     </div>
   );
 };
