@@ -317,7 +317,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import {  IconButton } from '@mui/material';
 import LanguageIcon from '@mui/icons-material/Language';
-const CONTRACT_ADDRESS = "0xDd0E158E75320cDcf6A87abc60303E96b8a3fFEF"; // Replace with your deployed contract address
+import RECChatbot from '../../components/AiChatBot';
+
+const CONTRACT_ADDRESS = "0xb513E1bfCD84DA7885d739ddd3eB16005AD85671"; // Replace with your deployed contract address
 
 const ProducerDashboard = () => {
     const navigate = useNavigate();
@@ -488,7 +490,9 @@ const ProducerDashboard = () => {
                         <span className="text-sm text-gray-400">
                             {account.slice(0, 6)}...{account.slice(-4)}
                         </span>
+                        
                     )}
+                    
                     <AdminManagement contract={contract} account={account} />
                     <button
                         onClick={handleLogout}
@@ -713,6 +717,7 @@ const ProducerDashboard = () => {
             </div>
             <div className='mt-9'>
             <ProducerSales contract={contract} account={account} />
+            <RECChatbot contractAddress={contract} geminiApiKey={'AIzaSyDypXKVdmg7_PTGyFbqCHMEwAMMRmUIAK4'}/>
             </div>
             
         </div>

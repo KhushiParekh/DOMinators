@@ -20,7 +20,7 @@ import {  IconButton } from '@mui/material';
 import LanguageIcon from '@mui/icons-material/Language';
 import { AccountCircleOutlined as ProfileIcon } from '@mui/icons-material';
 import RECListings from '../../components/Listings';
-
+import OpenAIAgentButton from '../../components/AiChatBot';
 const CompanyDashboard = () => {
     const navigate = useNavigate();
     const [account, setAccount] = useState('');
@@ -69,7 +69,7 @@ const CompanyDashboard = () => {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 const signer = provider.getSigner();
                 
-                const contractAddress = "0xDd0E158E75320cDcf6A87abc60303E96b8a3fFEF";
+                const contractAddress = "0xb513E1bfCD84DA7885d739ddd3eB16005AD85671";
                 const contractABI = abi;
                 
                 const contract = new ethers.Contract(
@@ -148,13 +148,16 @@ const CompanyDashboard = () => {
                         <span className="text-sm text-gray-600">
                             {account.slice(0, 6)}...{account.slice(-4)}
                         </span>
+                        
                     )}
+                    
                     <button
                         onClick={handleLogout}
                         className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                     >
                         Logout
                     </button>
+                  
                     <ProfileIcon onClick={handleProfile} className="text-green-700 cursor-pointer" />
                               {/* Multilingual Icon */}
              <IconButton

@@ -7,7 +7,7 @@ import { ethers } from 'ethers';
 const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress, userType }) => {
   const GEMINI_API_KEY = 'AIzaSyDypXKVdmg7_PTGyFbqCHMEwAMMRmUIAK4';
   const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-   contractAddress = "0xDd0E158E75320cDcf6A87abc60303E96b8a3fFEF";
+   contractAddress = "0xb513E1bfCD84DA7885d739ddd3eB16005AD85671";
   const [contract, setContract] = useState(null);
   const [analysisData, setAnalysisData] = useState({
     metrics: {

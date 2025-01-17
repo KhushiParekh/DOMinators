@@ -14,7 +14,7 @@ const ListTokens = ({ contractAddress, walletAddress }) => {
   const [decimals, setDecimals] = useState(18);
 
   const ABI = abi;
-  contractAddress = '0xDd0E158E75320cDcf6A87abc60303E96b8a3fFEF';
+  contractAddress = '0xb513E1bfCD84DA7885d739ddd3eB16005AD85671';
 
   useEffect(() => {
     const initializeContract = async () => {
