@@ -98,10 +98,10 @@ const Home = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
-          <button onClick={ navigate("/login")} className="px-8 py-4 bg-violet-600/60 text-white rounded-full font-semibold hover:bg-violet-700 transform hover:scale-105 transition-all">
+          <button onClick={() => navigate("/login")} className="px-8 py-4 bg-violet-600/60 text-white rounded-full font-semibold hover:bg-violet-700 transform hover:scale-105 transition-all">
             Get Started Now
           </button>
-          <button onClick={ navigate("/login")} className="px-8 py-4 border-2 border-violet-500 text-violet-600 rounded-full font-semibold hover:bg-violet-500/60 transform hover:scale-105 transition-all">
+          <button onClick={() => navigate("/login")} className="px-8 py-4 border-2 border-violet-500 text-violet-600 rounded-full font-semibold hover:bg-violet-500/60 transform hover:scale-105 transition-all">
             Learn More
           </button>
         </motion.div>
