@@ -716,8 +716,8 @@ const ProducerDashboard = () => {
                 {/* <ListTokensForm contractAddress={contract} walletAddress={account} /> */}
             </div>
             <div className='mt-9'>
-            <ProducerSales contract={contract} account={account} />
-            <RECChatbot contractAddress={contract} geminiApiKey={'AIzaSyDypXKVdmg7_PTGyFbqCHMEwAMMRmUIAK4'}/>
+              <ProducerSales contract={contract} account={account} />
+              <RECChatbot contractAddress={contract} geminiApiKey={'AIzaSyDypXKVdmg7_PTGyFbqCHMEwAMMRmUIAK4'}/>
             </div>
             
         </div>

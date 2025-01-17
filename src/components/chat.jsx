@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect , useRef } from 'react';
 import { db } from '../pages/firebase';
 import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, getDocs } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 import { MessageCircle, Send, X } from 'lucide-react';
 
-const ChatComponent = () => {
+const ChatPage = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const [showChat, setShowChat] = useState(false);
+  
   const messagesEndRef = useRef(null);
   const { currentUser } = useAuth();
 
@@ -44,18 +44,22 @@ const ChatComponent = () => {
   useEffect(() => {
     if (!selectedUser || !currentUser) return;
 
-    // Create a compound query for messages
+    // Create a compound query for messages with the required index
+    const chatId = getChatId(currentUser.uid, selectedUser.uid);
+    const messagesRef = collection(db, 'privateMessages');
     const chatQuery = query(
-      collection(db, 'messages'),
-      where('chatId', '==', getChatId(currentUser.uid, selectedUser.uid)),
-      orderBy('timestamp', 'asc')
+      messagesRef,
+      where('participants', 'array-contains', currentUser.uid),
+      orderBy('timestamp', 'desc')
     );
 
     const unsubscribe = onSnapshot(chatQuery, (snapshot) => {
-      const messageList = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const messageList = snapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+        .filter(msg => msg.chatId === chatId);
       setMessages(messageList);
       scrollToBottom();
     });
@@ -75,14 +79,15 @@ const ChatComponent = () => {
     try {
       const chatId = getChatId(currentUser.uid, selectedUser.uid);
       
-      await addDoc(collection(db, 'messages'), {
+      await addDoc(collection(db, 'privateMessages'), {
         chatId: chatId,
         text: newMessage,
         senderId: currentUser.uid,
         senderName: currentUser.displayName || currentUser.email,
         recipientId: selectedUser.uid,
         recipientName: selectedUser.displayName || selectedUser.email,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
+        participants: [currentUser.uid, selectedUser.uid]
       });
 
       setNewMessage('');
@@ -92,103 +97,106 @@ const ChatComponent = () => {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <button
-        onClick={() => setShowChat(!showChat)}
-        className="bg-green-500 text-white p-3 rounded-full shadow-lg hover:bg-green-600"
-      >
-        <MessageCircle size={24} />
-      </button>
-
-      {showChat && (
-        <div className="absolute bottom-16 right-0 w-96 h-[32rem] bg-white rounded-lg shadow-xl flex flex-col">
-          <div className="p-4 border-b flex justify-between items-center bg-green-500 text-white rounded-t-lg">
-            <h3 className="font-semibold">
-              {selectedUser ? selectedUser.displayName || selectedUser.email : 'Select a user to chat'}
-            </h3>
-            {selectedUser && (
-              <button 
-                onClick={() => setSelectedUser(null)} 
-                className="mr-2 text-white hover:text-gray-200"
-              >
-                Back
-              </button>
-            )}
-            <button onClick={() => setShowChat(false)} className="text-white">
-              <X size={20} />
-            </button>
-          </div>
-
-          <div className="flex h-full">
-            {/* Users List */}
-            {!selectedUser && (
-              <div className="w-full p-4 overflow-y-auto">
-                {onlineUsers.map((user) => (
-                  <div
-                    key={user.uid}
-                    onClick={() => setSelectedUser(user)}
-                    className="flex items-center p-3 hover:bg-gray-100 rounded-lg cursor-pointer"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white">
-                      {(user.displayName || user.email)[0].toUpperCase()}
-                    </div>
-                    <div className="ml-3">
-                      <p className="font-medium">{user.displayName || user.email}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Chat Area */}
-            {selectedUser && (
-              <div className="flex flex-col w-full">
-                <div className="flex-1 p-4 overflow-y-auto">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`mb-4 flex ${message.senderId === currentUser.uid ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`max-w-[70%] p-3 rounded-lg ${
-                          message.senderId === currentUser.uid
-                            ? 'bg-green-500 text-white'
-                            : 'bg-gray-200'
-                        }`}
-                      >
-                        <p>{message.text}</p>
-                        <p className="text-xs mt-1 opacity-70">
-                          {message.timestamp?.toDate().toLocaleTimeString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </div>
-
-                <form onSubmit={sendMessage} className="p-4 border-t flex gap-2">
-                  <input
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type a message..."
-                    className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                  <button
-                    type="submit"
-                    className="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600"
-                    disabled={!newMessage.trim()}
-                  >
-                    <Send size={20} />
-                  </button>
-                </form>
-              </div>
-            )}
-          </div>
+    <div className="flex h-screen bg-gray-100">
+      {/* Sidebar - User List */}
+      <div className="w-1/4 bg-white border-r">
+        <div className="p-4 border-b">
+          <h2 className="text-xl font-semibold">Messages</h2>
         </div>
-      )}
+        <div className="overflow-y-auto h-[calc(100vh-70px)]">
+          {onlineUsers.map((user) => (
+            <div
+              key={user.uid}
+              onClick={() => setSelectedUser(user)}
+              className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 ${
+                selectedUser?.uid === user.uid ? 'bg-gray-100' : ''
+              }`}
+            >
+              <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white">
+                {(user.displayName || user.email)[0].toUpperCase()}
+              </div>
+              <div className="ml-4">
+                <h3 className="font-medium">{user.displayName || user.email}</h3>
+                <p className="text-sm text-gray-500">Click to start chatting</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {selectedUser ? (
+          <>
+            {/* Chat Header */}
+            <div className="p-4 border-b bg-white">
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white">
+                  {(selectedUser.displayName || selectedUser.email)[0].toUpperCase()}
+                </div>
+                <h2 className="ml-3 text-lg font-semibold">
+                  {selectedUser.displayName || selectedUser.email}
+                </h2>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex mb-4 ${
+                    message.senderId === currentUser.uid ? 'justify-end' : 'justify-start'
+                  }`}
+                >
+                  <div
+                    className={`max-w-[70%] p-3 rounded-lg ${
+                      message.senderId === currentUser.uid
+                        ? 'bg-green-500 text-white'
+                        : 'bg-white border'
+                    }`}
+                  >
+                    <p>{message.text}</p>
+                    <p className="text-xs mt-1 opacity-70">
+                      {message.timestamp?.toDate().toLocaleTimeString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Message Input */}
+            <div className="p-4 bg-white border-t">
+              <form onSubmit={sendMessage} className="flex gap-2">
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type a message..."
+                  className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                <button
+                  type="submit"
+                  className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600"
+                  disabled={!newMessage.trim()}
+                >
+                  <Send size={20} />
+                </button>
+              </form>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center bg-gray-50">
+            <div className="text-center text-gray-500">
+              <MessageCircle size={48} className="mx-auto mb-4" />
+              <p className="text-xl">Select a user to start chatting</p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default ChatComponent;
+export default ChatPage;
