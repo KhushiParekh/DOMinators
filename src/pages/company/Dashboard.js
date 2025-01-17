@@ -174,7 +174,7 @@ const CompanyDashboard = () => {
             </div>
 
             {/* Main Content */}
-            <main className="pt-24 px-2 sm:px-6 lg:px-2 max-w-7xl flex flex-col mx-auto">
+            <main className="pt-24 px-10 sm:px-6 lg:px-2 max-w-7xl flex flex-col mx-auto">
                 {/* Registration Status */}
                 {account && !buyerStatus.registered && (
                     <div className="bg-white rounded-lg shadow-sm mb-6 p-6">
@@ -206,22 +206,22 @@ const CompanyDashboard = () => {
                 )}
 
                 {/* Dashboard Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
                     
                     {/* <div className="bg-white rounded-lg shadow-sm p-6">
                         <EnergyBalances contract={contract} account={account} />
                     </div> */}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 mb-8 lg:grid-cols-3 gap-3">
                     
-                    <div className="bg-white w-full col-span-full rounded-lg shadow-sm ">
+                    <div className="bg-white w-[95%] ml-8 mb-6 col-span-full rounded-lg shadow-sm ">
                         <Listings contract={contract} account={account} />
                     </div>
                     {/* <div className="bg-white rounded-lg shadow-sm p-6">
                         <BuyTokensByType contractAddress="0xDd0E158E75320cDcf6A87abc60303E96b8a3fFEF" />
                     </div> */}
-                    <div className="bg-white rounded-lg shadow-sm p-6 col-span-full lg:col-span-2">
+                    <div className="bg-white x-[95%] ml-4 rounded-lg shadow-sm p-3 col-span-full lg:col-span-2">
                         <TransactionHistory contract={contract} account={account} />
                     </div>
                     <div className="bg-white rounded-lg shadow-sm p-2 pt-5">
@@ -240,8 +240,10 @@ const CompanyDashboard = () => {
                       
                     
                 </div>
-                <div className="mt-6 w-[100%]  " >  
-                <SpecializedYieldAnalyzer contractAddress={contract} contractABI={abi} walletAddress={account} userType="buyer" />
+                <div className='flex justify-center items-center'>
+                    <div className="mt-6 w-[90%] " >  
+                    <SpecializedYieldAnalyzer contractAddress={contract} contractABI={abi} walletAddress={account} userType="buyer" />
+                    </div>
                 </div>
                 <RECBuyerChatbot/>
             </main>
