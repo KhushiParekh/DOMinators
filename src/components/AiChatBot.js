@@ -279,7 +279,6 @@ const RECChatbot = () => {
     return details;
   };
 
-  // Update the modal JSX section only
   const renderModal = () => {
     if (!showModal || !pendingAction) return null;
 
@@ -330,7 +329,7 @@ const RECChatbot = () => {
     );
   };
   return (
-    <div className="flex flex-col h-screen max-w-2xl mx-auto p-4 bg-gray-50">
+    <div className="flex flex-col h-[600px] max-w-2xl mx-auto p-4 bg-gray-50">
       <div className="mb-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">REC Producer Assistant</h1>
         {!isConnected ? (
@@ -383,35 +382,6 @@ const RECChatbot = () => {
         </button>
       </form>
 
-      {/* {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">Confirm Transaction</h2>
-            <div className="mb-4 space-y-2">
-              <p className="font-medium">Function: {pendingAction.function}</p>
-              <div className="bg-gray-50 p-2 rounded">
-                <pre className="whitespace-pre-wrap break-words">
-                  {JSON.stringify(pendingAction.params, null, 2)}
-                </pre>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => executeTransaction(pendingAction)}
-                className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg transition-colors"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
       {renderModal()}
     </div>
   );
