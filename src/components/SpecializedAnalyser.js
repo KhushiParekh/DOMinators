@@ -428,7 +428,7 @@ const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress,
                   ))}
                 </Pie>
                 <Tooltip />
-                <Legend />
+                <Legend className="mt-4" />
               </PieChart>
             </div>
           </div>
