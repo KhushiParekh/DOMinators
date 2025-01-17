@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ethers } from 'ethers';
 
-const RECChatbot = () => {
+const RECBuyerChatbot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
-  const [isProducer, setIsProducer] = useState(false);
+  const [isBuyer, setIsBuyer] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
   const chatRef = useRef(null);
@@ -15,12 +15,13 @@ const RECChatbot = () => {
   const GEMINI_API_KEY = 'AIzaSyCTqdOJSJ1QhPR1q2cey_ItEGrOIc_X8II';
 
   const CONTRACT_ABI = [
-    "function getProducerInfo(address producer) view returns (tuple(string gst, string location, bool verified))",
-    "function mintTokens(uint256 amount, string memory energyType)",
-    "function burnTokens(uint256 amount, string memory energyType)",
-    "function listTokens(uint256 amount, uint256 price, string memory energyType)",
-    "function cancelListing(uint256 listingId)",
-    "function transferTokens(address to, uint256 amount, string memory energyType)"
+    "function getBuyerInfo(address buyer) view returns (tuple(bool registered, bool approved))",
+    "function registerBuyer()",
+    "function buyTokens(uint256 listingId, uint256 amount)",
+    "function getActiveListings() view returns (tuple(uint256 id, address seller, uint256 amount, uint256 price, string energyType, bool active)[])",
+    "function buyTokensByEnergyType(string energyType, uint256 amount)",
+    "function getBalanceByEnergyType(address account, string energyType) view returns (uint256)",
+    "function getBuyingHistory(address buyer) view returns (tuple(address counterparty, uint256 amount, uint256 price, string energyType, uint256 timestamp)[])"
   ];
 
   const provider = window.ethereum ? new ethers.providers.Web3Provider(window.ethereum) : null;
@@ -36,6 +37,7 @@ const RECChatbot = () => {
   const addMessage = (text, isBot = false) => {
     setMessages(prev => [...prev, { text, isBot, timestamp: Date.now() }]);
   };
+
   const connectWallet = async () => {
     try {
       if (!provider) {
@@ -46,23 +48,36 @@ const RECChatbot = () => {
       const address = await signer.getAddress();
       setWalletAddress(address);
       setIsConnected(true);
-      checkProducerStatus(address);
+      checkBuyerStatus(address);
     } catch (error) {
       addMessage("Failed to connect wallet: " + error.message, true);
     }
   };
 
-  const checkProducerStatus = async (address) => {
+  const checkBuyerStatus = async (address) => {
     try {
-      const producerInfo = await contract.getProducerInfo(address);
-      setIsProducer(producerInfo.verified);
-      if (producerInfo.verified) {
-        addMessage("Welcome verified producer! How can I help you today?", true);
+      const buyerInfo = await contract.getBuyerInfo(address);
+      setIsBuyer(buyerInfo.approved);
+      if (buyerInfo.approved) {
+        addMessage("Welcome approved buyer! How can I help you today?", true);
+      } else if (buyerInfo.registered) {
+        addMessage("Your registration is pending approval. Please wait for admin approval.", true);
       } else {
-        addMessage("You need to be a verified producer to use this interface.", true);
+        addMessage("You need to register as a buyer first. Would you like to register now?", true);
       }
     } catch (error) {
-      addMessage("Error checking producer status: " + error.message, true);
+      addMessage("Error checking buyer status: " + error.message, true);
+    }
+  };
+
+  const registerAsBuyer = async () => {
+    try {
+      const tx = await contract.registerBuyer();
+      await tx.wait();
+      addMessage("Registration submitted successfully! Please wait for admin approval.", true);
+      checkBuyerStatus(walletAddress);
+    } catch (error) {
+      addMessage("Registration failed: " + error.message, true);
     }
   };
 
@@ -79,23 +94,24 @@ const RECChatbot = () => {
             parts: [{
               text: `You are an AI assistant for a blockchain REC (Renewable Energy Certificate) trading platform.
                      Parse this user request and respond with a JSON object containing 'function' and 'parameters'.
-                     Available functions: mintTokens, burnTokens, listTokens, cancelListing, transferTokens.
-                     Energy types allowed: solar, wind, hydro, biomass, geothermal. Give answer in the language of the user.
+                     Available functions: buyTokens, buyTokensByEnergyType, getActiveListings, getBalanceByEnergyType, getBuyingHistory, registerBuyer.
+                     Energy types allowed: solar, wind, hydro, biomass, geothermal.
+                     Give answer in the language of the user.
                      
                      User request: "${userInput}"
                      
                      If the request doesn't match any function, respond with:
                      {
                        "function": "chat",
-                       "response": "your helpful response about RECs"
+                       "response": "your helpful response about buying RECs"
                      }
                      
                      For functions, respond with format:
                      {
-                       "function": "mintTokens",
+                       "function": "buyTokens",
                        "parameters": {
-                         "amount": "100",
-                         "energyType": "solar"
+                         "listingId": "1",
+                         "amount": "100"
                        }
                      }`
             }]
@@ -110,35 +126,20 @@ const RECChatbot = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('API Error Details:', errorData);
-        throw new Error(`API error (${response.status}): ${errorData.error?.message || response.statusText}`);
+        throw new Error(`API error: ${response.statusText}`);
       }
 
       const data = await response.json();
-      
-      if (!data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-        console.error('Unexpected API response structure:', data);
-        throw new Error('Invalid response structure from Gemini API');
-      }
-
       const aiResponse = data.candidates[0].content.parts[0].text;
+      const parsedResponse = JSON.parse(aiResponse.trim());
 
-      try {
-        const parsedResponse = JSON.parse(aiResponse.trim());
-        
-        if (parsedResponse.function === 'chat') {
-          addMessage(parsedResponse.response, true);
-          return null;
-        }
-        
-        return processAIResponse(parsedResponse, userInput);
-      } catch (parseError) {
-        console.error('Parse error:', parseError);
-        throw new Error(`Failed to parse AI response: ${parseError.message}`);
+      if (parsedResponse.function === 'chat') {
+        addMessage(parsedResponse.response, true);
+        return null;
       }
+
+      return processAIResponse(parsedResponse, userInput);
     } catch (error) {
-      console.error('AI Processing error:', error);
       addMessage(`Error: ${error.message}. Please try again.`, true);
       return null;
     }
@@ -150,15 +151,11 @@ const RECChatbot = () => {
     }
 
     const params = {
+      listingId: aiResponse.parameters.listingId,
       amount: aiResponse.parameters.amount ? 
         ethers.utils.parseEther(aiResponse.parameters.amount.toString()) : 
         ethers.utils.parseEther('1'),
-      energyType: aiResponse.parameters.energyType,
-      price: aiResponse.parameters.price ? 
-        ethers.utils.parseEther(aiResponse.parameters.price.toString()) : 
-        ethers.utils.parseEther('1'),
-      listingId: aiResponse.parameters.listingId,
-      to: aiResponse.parameters.to
+      energyType: aiResponse.parameters.energyType
     };
 
     return {
@@ -167,37 +164,58 @@ const RECChatbot = () => {
     };
   };
 
-
   const executeTransaction = async (action) => {
     try {
       let tx;
       switch (action.function) {
-        case 'mintTokens':
-          tx = await contract.mintTokens(action.params.amount, action.params.energyType);
+        case 'registerBuyer':
+          await registerAsBuyer();
           break;
-        case 'burnTokens':
-          tx = await contract.burnTokens(action.params.amount, action.params.energyType);
+        case 'buyTokens':
+          tx = await contract.buyTokens(action.params.listingId, action.params.amount);
           break;
-        case 'listTokens':
-          tx = await contract.listTokens(action.params.amount, action.params.price, action.params.energyType);
+        case 'buyTokensByEnergyType':
+          tx = await contract.buyTokensByEnergyType(action.params.energyType, action.params.amount);
           break;
-        case 'cancelListing':
-          tx = await contract.cancelListing(action.params.listingId);
+        case 'getActiveListings':
+          const listings = await contract.getActiveListings();
+          displayListings(listings);
           break;
-        case 'transferTokens':
-          tx = await contract.transferTokens(action.params.to, action.params.amount, action.params.energyType);
+        case 'getBalanceByEnergyType':
+          const balance = await contract.getBalanceByEnergyType(walletAddress, action.params.energyType);
+          addMessage(`Your ${action.params.energyType} REC balance: ${ethers.utils.formatEther(balance)}`, true);
+          break;
+        case 'getBuyingHistory':
+          const history = await contract.getBuyingHistory(walletAddress);
+          displayHistory(history);
           break;
         default:
           throw new Error('Unknown function');
       }
       
-      const receipt = await tx.wait();
-      addMessage(`Transaction successful! Hash: ${receipt.transactionHash}`, true);
+      if (tx) {
+        const receipt = await tx.wait();
+        addMessage(`Transaction successful! Hash: ${receipt.transactionHash}`, true);
+      }
     } catch (error) {
       addMessage("Transaction failed: " + error.message, true);
     }
     setShowModal(false);
     setPendingAction(null);
+  };
+
+  const displayListings = (listings) => {
+    const listingsText = listings.map(listing => 
+      `ID: ${listing.id}\nSeller: ${listing.seller}\nAmount: ${ethers.utils.formatEther(listing.amount)} RECs\nPrice: ${ethers.utils.formatEther(listing.price)} ETH\nEnergy Type: ${listing.energyType}`
+    ).join('\n\n');
+    addMessage(`Active Listings:\n${listingsText}`, true);
+  };
+
+  const displayHistory = (history) => {
+    const historyText = history.map(tx => 
+      `Seller: ${tx.counterparty}\nAmount: ${ethers.utils.formatEther(tx.amount)} RECs\nPrice: ${ethers.utils.formatEther(tx.price)} ETH\nEnergy Type: ${tx.energyType}\nDate: ${new Date(tx.timestamp * 1000).toLocaleString()}`
+    ).join('\n\n');
+    addMessage(`Your Purchase History:\n${historyText}`, true);
   };
 
   const handleSubmit = async (e) => {
@@ -212,15 +230,19 @@ const RECChatbot = () => {
       return;
     }
 
-    if (!isProducer) {
-      addMessage("Only verified producers can use this interface!", true);
-      return;
-    }
-
     const action = await processWithGemini(input);
     if (action) {
-      setPendingAction(action);
-      setShowModal(true);
+      if (action.function === 'registerBuyer' || action.function === 'getActiveListings' || 
+          action.function === 'getBalanceByEnergyType' || action.function === 'getBuyingHistory') {
+        await executeTransaction(action);
+      } else {
+        if (!isBuyer) {
+          addMessage("You need to be an approved buyer to perform this action!", true);
+          return;
+        }
+        setPendingAction(action);
+        setShowModal(true);
+      }
     }
   };
 
@@ -236,39 +258,17 @@ const RECChatbot = () => {
     const details = [];
     
     switch (action.function) {
-      case 'mintTokens':
+      case 'buyTokens':
         details.push(
-          ['Amount', `${formatEther(action.params.amount)} tokens`],
-          ['Energy Type', action.params.energyType.charAt(0).toUpperCase() + action.params.energyType.slice(1)]
+          ['Listing ID', action.params.listingId],
+          ['Amount', `${formatEther(action.params.amount)} RECs`]
         );
         break;
       
-      case 'burnTokens':
+      case 'buyTokensByEnergyType':
         details.push(
-          ['Amount', `${formatEther(action.params.amount)} tokens`],
-          ['Energy Type', action.params.energyType.charAt(0).toUpperCase() + action.params.energyType.slice(1)]
-        );
-        break;
-      
-      case 'listTokens':
-        details.push(
-          ['Amount', `${formatEther(action.params.amount)} tokens`],
-          ['Price', `${formatEther(action.params.price)} ETH`],
-          ['Energy Type', action.params.energyType.charAt(0).toUpperCase() + action.params.energyType.slice(1)]
-        );
-        break;
-      
-      case 'cancelListing':
-        details.push(
-          ['Listing ID', action.params.listingId]
-        );
-        break;
-      
-      case 'transferTokens':
-        details.push(
-          ['Recipient', action.params.to],
-          ['Amount', `${formatEther(action.params.amount)} tokens`],
-          ['Energy Type', action.params.energyType.charAt(0).toUpperCase() + action.params.energyType.slice(1)]
+          ['Energy Type', action.params.energyType],
+          ['Amount', `${formatEther(action.params.amount)} RECs`]
         );
         break;
       
@@ -279,7 +279,6 @@ const RECChatbot = () => {
     return details;
   };
 
-  // Update the modal JSX section only
   const renderModal = () => {
     if (!showModal || !pendingAction) return null;
 
@@ -301,11 +300,7 @@ const RECChatbot = () => {
                 {details.map(([label, value], index) => (
                   <div key={index} className="grid grid-cols-2 gap-2">
                     <span className="text-sm font-medium text-gray-600">{label}:</span>
-                    <span className="text-sm text-gray-800 break-words">
-                      {typeof value === 'string' && value.startsWith('0x') 
-                        ? `${value.slice(0, 6)}...${value.slice(-4)}`
-                        : value}
-                    </span>
+                    <span className="text-sm text-gray-800 break-words">{value}</span>
                   </div>
                 ))}
               </div>
@@ -329,10 +324,11 @@ const RECChatbot = () => {
       </div>
     );
   };
+
   return (
     <div className="flex flex-col h-screen max-w-2xl mx-auto p-4 bg-gray-50">
       <div className="mb-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">REC Producer Assistant</h1>
+        <h1 className="text-2xl font-bold text-gray-800">REC Buyer Assistant</h1>
         {!isConnected ? (
           <button
             onClick={connectWallet}
@@ -382,39 +378,9 @@ const RECChatbot = () => {
           Send
         </button>
       </form>
-
-      {/* {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">Confirm Transaction</h2>
-            <div className="mb-4 space-y-2">
-              <p className="font-medium">Function: {pendingAction.function}</p>
-              <div className="bg-gray-50 p-2 rounded">
-                <pre className="whitespace-pre-wrap break-words">
-                  {JSON.stringify(pendingAction.params, null, 2)}
-                </pre>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => executeTransaction(pendingAction)}
-                className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg transition-colors"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
       {renderModal()}
     </div>
   );
 };
 
-export default RECChatbot;
+export default RECBuyerChatbot;

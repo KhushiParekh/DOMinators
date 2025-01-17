@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import emailjs from '@emailjs/browser';
-
+import { getAuth } from 'firebase/auth';
 const ProducerSales = ({ contract, account }) => {
     const [history, setHistory] = useState([]);
     const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+    const [userEmail, setUserEmail] = useState('');
     
     useEffect(() => {
         if (contract && account) {
             fetchSellHistory();
+            getUserEmail();
         }
     }, [contract, account]);
 
@@ -55,14 +57,37 @@ const ProducerSales = ({ contract, account }) => {
         };
     };
 
+    const getUserEmail = async () => {
+        try {
+            const auth = getAuth();
+            const currentUser = auth.currentUser;
+            
+            if (currentUser && currentUser.email) {
+                setUserEmail(currentUser.email);
+            } else {
+                console.error("No user email found");
+                showNotification("Could not fetch user email", "error");
+            }
+        } catch (error) {
+            console.error("Error fetching user email:", error);
+            showNotification("Failed to fetch user email", "error");
+        }
+    };
+
+    // Modified sendMonthlyReport function to use Firebase email
     const sendMonthlyReport = async () => {
+        if (!userEmail) {
+            showNotification("No email address found. Please make sure you're logged in.", "error");
+            return;
+        }
+
         try {
             const { transactions, summary } = generateMonthlySummary();
             const currentDate = new Date();
             const monthName = currentDate.toLocaleString('default', { month: 'long' });
 
             const emailContent = {
-                to_email: "your-email@example.com", // Replace with user's email
+                to_email: userEmail, // Using email from Firebase
                 month: monthName,
                 year: currentDate.getFullYear(),
                 total_sales: summary.totalSales,
@@ -79,13 +104,13 @@ const ProducerSales = ({ contract, account }) => {
 
             // Replace these with your EmailJS credentials
             await emailjs.send(
-                'service_n1oirmq',
+                'service_i3t8r4m',
                 'template_e254j4c',
                 emailContent,
                 'hfx--3KcbLgX-EWIv'
             );
 
-            showNotification(`Monthly report for ${monthName} has been sent to your email`, "success");
+            showNotification(`Monthly report for ${monthName} has been sent to ${userEmail}`, "success");
 
         } catch (error) {
             console.error("Error sending email:", error);

@@ -21,6 +21,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import { AccountCircleOutlined as ProfileIcon } from '@mui/icons-material';
 import RECListings from '../../components/Listings';
 import OpenAIAgentButton from '../../components/AiChatBot';
+import RECBuyerChatbot from '../../components/AiBuyerChatBot';
 const CompanyDashboard = () => {
     const navigate = useNavigate();
     const [account, setAccount] = useState('');
@@ -242,6 +243,7 @@ const CompanyDashboard = () => {
                 <div className="mt-6 w-[100%]  " >  
                 <SpecializedYieldAnalyzer contractAddress={contract} contractABI={abi} walletAddress={account} userType="buyer" />
                 </div>
+                <RECBuyerChatbot/>
             </main>
         </div>
     );
