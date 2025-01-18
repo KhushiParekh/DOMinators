@@ -25,6 +25,7 @@ import { IconButton } from '@mui/material';
 import LanguageIcon from '@mui/icons-material/Language';
 import RECChatbot from '../../components/AiChatBot';
 import { MessageSquare } from 'lucide-react';
+import CombinedEnergyVerifier from '../../components/CombinedEnergyVerifier';
 
 const CONTRACT_ADDRESS = "0xb513E1bfCD84DA7885d739ddd3eB16005AD85671"; // Replace with your deployed contract address
 
@@ -138,7 +139,7 @@ const ProducerDashboard = () => {
         setError(null);
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/predict', {
+            const response = await fetch('http://127.0.0.1:5000/predict_energy', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -398,7 +399,7 @@ const ProducerDashboard = () => {
                     <>
                         <TransferToken contract={contract} />
                         <AddEnergy contract={contract} account={account} />
-                        <ReclaimVerification />
+                        <CombinedEnergyVerifier contract={contract} />
                     </>
                 )}
             </div>

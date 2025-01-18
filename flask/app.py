@@ -1,30 +1,53 @@
+import requests
 import pandas as pd
 import numpy as np
-from flask import Flask, request, jsonify
+from datetime import datetime
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
+import h5py
 import joblib
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
 
-# Load the pre-trained model and scaler
-model = None
+# Configure CORS
+CORS(app, resources={
+    r"/*": {
+        "origins": "*",
+        "methods": ["*"],
+        "allow_headers": ["*"],
+        "supports_credentials": True,
+        "expose_headers": ["Content-Type", "X-CSRFToken"],
+        "max_age": 3600
+    }
+})
+
+# Global variables for fraud detection
+fraud_model = None
 scaler = None
 
-def load_model():
-    global model, scaler
+# Add CORS headers to all responses
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', '*')
+    response.headers.add('Access-Control-Allow-Methods', '*')
+    return response
+
+def load_fraud_model():
+    global fraud_model, scaler
     try:
-        model = joblib.load('model.pkl')
+        fraud_model = joblib.load('model.pkl')
         scaler = joblib.load('scaler.pkl')
     except:
-        # If model doesn't exist, we'll train it
-        train_model()
+        train_fraud_model()
 
-def train_model():
-    global model, scaler
+def train_fraud_model():
+    global fraud_model, scaler
     
-    # Initialize the model with best parameters from grid search
-    model = RandomForestClassifier(
+    fraud_model = RandomForestClassifier(
         n_estimators=200,
         max_depth=20,
         min_samples_split=2,
@@ -32,15 +55,12 @@ def train_model():
         random_state=42
     )
     
-    # Initialize scaler
     scaler = StandardScaler()
     
-    # Save the model and scaler
-    joblib.dump(model, 'model.pkl')
+    joblib.dump(fraud_model, 'model.pkl')
     joblib.dump(scaler, 'scaler.pkl')
 
-def preprocess_data(data):
-    """Preprocess input data similar to training pipeline"""
+def preprocess_fraud_data(data):
     numerical_cols = [
         'Energy_Produced_kWh', 
         'Energy_Sold_kWh',
@@ -49,23 +69,121 @@ def preprocess_data(data):
         'Energy_Consumption_Deviation'
     ]
     
-    # Create DataFrame if input is dictionary
     if isinstance(data, dict):
         data = pd.DataFrame([data])
     
-    # Scale numerical features
     scaled_data = data.copy()
     scaled_data[numerical_cols] = scaler.transform(data[numerical_cols])
     
     return scaled_data
 
-@app.route('/predict', methods=['POST'])
-def predict():
+@app.route('/predict_energy', methods=['POST'])
+def predict_energy():
     try:
-        # Get input data from request
+        # Get data from request
+        data = request.json
+        location = data.get('location')
+        area = float(data.get('area'))
+        unit = float(data.get('unit'))
+
+        # Load weather data
+        df = pd.read_csv("weather.csv", sep=',', index_col=False)
+        
+        # Default coordinates (Paris)
+        latitude = 48.8588443
+        longitude = 2.2943506
+
+        # Get latitude and longitude for the location
+        location_row = df[df['city'] == location]
+        if not location_row.empty:
+            latitude = location_row.iloc[0]['lat']
+            longitude = location_row.iloc[0]['lng']
+
+        # Visual Crossing Weather API key and URL
+        API_KEY = "AYXAQ2E9CFTNDAELE4FKAWKLG"
+        BASE_URL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline"
+        url = f"{BASE_URL}/{latitude},{longitude}"
+        
+        params = {
+            "key": API_KEY,
+            "unitGroup": "metric",
+            "include": "current",
+        }
+
+        response = requests.get(url, params=params)
+
+        if response.status_code != 200:
+            return jsonify({"error": "Failed to fetch weather data"}), 500
+
+        weather_data = response.json()
+        current_data = weather_data.get("currentConditions", {})
+
+        # Extract weather information
+        temperature = current_data.get("temp", 0)
+        pressure = current_data.get("pressure", 0)
+        cloud_cover = current_data.get("cloudcover", 0)
+        wind_speed = current_data.get("windspeed", 0)
+        solar_radiation = current_data.get("solarradiation", 0)
+
+        # Calculate derived features
+        temp_squared = temperature * temperature
+        wind_speed_squared = wind_speed * wind_speed
+
+        # Prepare the model input data
+        model_input_data = {
+            "Log_GHI": [np.log(solar_radiation + 1)],
+            "Clouds_all": [cloud_cover],
+            "Wind_speed": [wind_speed],
+            "Wind_speed^2": [wind_speed_squared],
+            "Temp": [temperature],
+            "Temp^2": [temp_squared],
+            "Pressure": [pressure],
+            "Interaction_LogGHI_Clouds": [np.log(solar_radiation + 1) * cloud_cover],
+        }
+        model_input_df = pd.DataFrame(model_input_data)
+
+        # Load energy weather data for model training
+        df1 = pd.read_csv("energy_weather_data.csv")
+        X = df1.iloc[:, [0, 1, 2, 3, 4, 5, 6, 7]]
+        Y = df1.iloc[:, [8, 9]]
+
+        # Train the Random Forest model
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+        model = RandomForestRegressor()
+        model.fit(X_train, Y_train)
+
+        # Make prediction
+        y_p = model.predict(model_input_df)
+
+        # Convert area based on unit
+        if unit == 1:  # Hectare
+            area = area * 10000
+        elif unit == 2:  # Acres
+            area = area * 4046.85642
+
+        # Scale predictions by area
+        solar_energy = float(y_p[0, 0] * area)
+        wind_energy = float(y_p[0, 1] * area)
+
+        # Save the model and data
+        joblib.dump(model, "random_forest_model.pkl")
+        with h5py.File("model_and_data.h5", "w") as f:
+            f.create_dataset("weather_data", data=df1.values)
+            f.create_dataset("model_input_data", data=model_input_df.values)
+
+        return jsonify({
+            "solar-energy": solar_energy,
+            "wind-energy": wind_energy
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/predict_fraud', methods=['POST'])
+def predict_fraud():
+    try:
         input_data = request.get_json()
         
-        # Validate required fields
         required_fields = [
             'Energy_Produced_kWh', 
             'Energy_Sold_kWh',
@@ -84,14 +202,11 @@ def predict():
                     'error': f'Missing required field: {field}'
                 }), 400
         
-        # Preprocess the data
-        processed_data = preprocess_data(input_data)
+        processed_data = preprocess_fraud_data(input_data)
         
-        # Make prediction
-        prediction = model.predict(processed_data)[0]
-        probability = model.predict_proba(processed_data)[0][1]
+        prediction = fraud_model.predict(processed_data)[0]
+        probability = fraud_model.predict_proba(processed_data)[0][1]
         
-        # Prepare response
         response = {
             'fraud_prediction': bool(prediction),
             'fraud_probability': float(probability),
@@ -106,10 +221,9 @@ def predict():
             'error': str(e)
         }), 500
 
-@app.route('/batch_predict', methods=['POST'])
-def batch_predict():
+@app.route('/batch_predict_fraud', methods=['POST'])
+def batch_predict_fraud():
     try:
-        # Get input data from request
         input_data = request.get_json()
         
         if not isinstance(input_data, list):
@@ -117,7 +231,6 @@ def batch_predict():
                 'error': 'Input must be a list of transactions'
             }), 400
         
-        # Validate each transaction
         required_fields = [
             'Energy_Produced_kWh', 
             'Energy_Sold_kWh',
@@ -137,15 +250,12 @@ def batch_predict():
                         'error': f'Missing required field: {field} in transaction at index {idx}'
                     }), 400
         
-        # Convert to DataFrame and preprocess
         df = pd.DataFrame(input_data)
-        processed_data = preprocess_data(df)
+        processed_data = preprocess_fraud_data(df)
         
-        # Make predictions
-        predictions = model.predict(processed_data)
-        probabilities = model.predict_proba(processed_data)[:, 1]
+        predictions = fraud_model.predict(processed_data)
+        probabilities = fraud_model.predict_proba(processed_data)[:, 1]
         
-        # Prepare response
         response = {
             'predictions': [bool(p) for p in predictions],
             'probabilities': [float(p) for p in probabilities],
@@ -162,8 +272,7 @@ def batch_predict():
 
 @app.route('/model_info', methods=['GET'])
 def model_info():
-    """Endpoint to get information about the model"""
-    if model is None:
+    if fraud_model is None:
         return jsonify({
             'error': 'Model not loaded'
         }), 500
@@ -182,14 +291,14 @@ def model_info():
             'Weather_Conditions'
         ],
         'parameters': {
-            'n_estimators': model.n_estimators,
-            'max_depth': model.max_depth,
-            'min_samples_split': model.min_samples_split,
-            'min_samples_leaf': model.min_samples_leaf
+            'n_estimators': fraud_model.n_estimators,
+            'max_depth': fraud_model.max_depth,
+            'min_samples_split': fraud_model.min_samples_split,
+            'min_samples_leaf': fraud_model.min_samples_leaf
         }
     })
 
 if __name__ == '__main__':
-    # Load the model when starting the application
-    load_model()
+    # Load the fraud detection model when starting the application
+    load_fraud_model()
     app.run(debug=True)
