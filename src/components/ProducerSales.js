@@ -116,6 +116,7 @@ const ProducerSales = ({ contract, account }) => {
                     count++;
                 }
             }
+            console.log(count);
             if(count === sellHistory.length) {
                 alert("No suspicious activities detected in this month");
             }
