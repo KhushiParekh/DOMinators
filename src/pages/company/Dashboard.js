@@ -24,6 +24,8 @@ import OpenAIAgentButton from '../../components/AiChatBot';
 import RECBuyerChatbot from '../../components/AiBuyerChatBot';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+import { ReceiptIndianRupee } from 'lucide-react';
+import BillVerificationPopup from '../../components/Billpop';
 const CompanyDashboard = () => {
     const navigate = useNavigate();
     const [account, setAccount] = useState('');
@@ -32,6 +34,7 @@ const CompanyDashboard = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const [showChatbot, setShowChatbot] = useState(false);
+    const [pop , setPop] = useState(false);
 
     // Open menu handler
     const handleMenuOpen = (event) => {
@@ -161,7 +164,7 @@ const CompanyDashboard = () => {
                     >
                         Logout
                     </button>
-                  
+                    <ReceiptIndianRupee size={23} className='m-1 text-white' onClick={() => setPop(!pop)} />
                     <ProfileIcon onClick={handleProfile} className="text-green-700 cursor-pointer" />
                               {/* Multilingual Icon */}
              <IconButton
@@ -175,7 +178,13 @@ const CompanyDashboard = () => {
             </IconButton>
                 </div>
             </div>
-
+            {pop && (
+                <BillVerificationPopup 
+                    onClose={() => setPop(false)}
+                    contract={contract}
+                    account={account}
+                />
+            )}
             {/* Main Content */}
             <main className="pt-24 px-10 sm:px-6 lg:px-2 max-w-7xl flex flex-col mx-auto">
                 {/* Registration Status */}

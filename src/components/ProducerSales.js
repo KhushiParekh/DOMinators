@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import emailjs from '@emailjs/browser';
 import { getAuth } from 'firebase/auth';
+
 const ProducerSales = ({ contract, account }) => {
     const [history, setHistory] = useState([]);
     const [notification, setNotification] = useState({ show: false, message: '', type: '' });
     const [userEmail, setUserEmail] = useState('');
     const [fraudFlags, setFraudFlags] = useState({});
-    
+        
     useEffect(() => {
         if (contract && account) {
             fetchSellHistory();
@@ -104,6 +105,8 @@ const ProducerSales = ({ contract, account }) => {
             const sellHistory = await contract.getSellingHistory(account);
 
             setHistory(sellHistory);
+            //calculateAllCredits(sellHistory);
+            //(sellHistory)
             const fraudResults = {};
             let suspiciousDetected = false;
             for (const transaction of sellHistory) {

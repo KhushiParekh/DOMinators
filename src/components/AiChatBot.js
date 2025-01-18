@@ -338,7 +338,7 @@ const RECChatbot = () => {
         {!isConnected ? (
           <button
             onClick={connectWallet}
-            className="bg-blue-500 mr-4 mt-4 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+            className="bg-green-500 mr-4 mt-4 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
           >
             <Unplug />
           </button>
