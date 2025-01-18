@@ -30,7 +30,7 @@ const ProducerSales = ({ contract, account }) => {
                 Weather_Conditions: "normal" // You might want to derive this from Weather_Anomaly
             };
     
-            const response = await fetch('/predict', {
+            const response = await fetch('/predict_fraud', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

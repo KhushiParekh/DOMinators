@@ -46,7 +46,7 @@ const TransferTokens = ({ contract }) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
+    <div className="bg-white p-6 rounded-lg shadow-md w-full">
       <h3 className="text-lg font-semibold mb-4">Transfer REC Tokens</h3>
       {error && (
         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">

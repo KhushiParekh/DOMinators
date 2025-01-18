@@ -395,14 +395,17 @@ const ProducerDashboard = () => {
                     <ActiveListings contract={contract} account={account} />
                 </div>
 
-                {account && (
-                    <>
-                        <TransferToken contract={contract} />
-                        <AddEnergy contract={contract} account={account} />
-                        <CombinedEnergyVerifier contract={contract} />
-                    </>
-                )}
+                
+
+
             </div>
+            {account && (
+            <div className="flex flex-col md:flex-row justify-center items-stretch gap-8 mt-8">
+                    <TransferToken contract={contract} />
+                    <CombinedEnergyVerifier contract={contract} />
+            </div>
+            )}
+
 
             <div className="mt-9 relative">
                 <ProducerSales contract={contract} account={account} />

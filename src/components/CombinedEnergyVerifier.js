@@ -157,7 +157,7 @@ const CombinedEnergyVerifier = ({ contract }) => {
   }, []);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg w-full">
       <h2 className="text-2xl font-bold mb-6">Energy Verification & Minting</h2>
       
       <div className="space-y-6">
