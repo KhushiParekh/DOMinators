@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import emailjs from '@emailjs/browser';
 import { getAuth } from 'firebase/auth';
+import Swal from "sweetalert2";
 
 const ProducerSales = ({ contract, account }) => {
     const [history, setHistory] = useState([]);
@@ -105,36 +106,44 @@ const ProducerSales = ({ contract, account }) => {
             const sellHistory = await contract.getSellingHistory(account);
 
             setHistory(sellHistory);
-            //calculateAllCredits(sellHistory);
-            //(sellHistory)
             const fraudResults = {};
             let suspiciousDetected = false;
+
             for (const transaction of sellHistory) {
                 const fraudFlag = await checkFraud(transaction);
                 fraudResults[`${transaction.timestamp}-${transaction.counterparty}`] = fraudFlag;
-                
+
                 if (fraudFlag === 1) {
                     suspiciousDetected = true;
-                    alert(`Suspicious activity detected in transaction with ${transaction.counterparty}`);
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Suspicious Activity Detected",
+                        text: `A suspicious transaction with ${transaction.counterparty} was identified.`,
+                        confirmButtonText: "View Details",
+                        confirmButtonColor: "#d33",
+                        cancelButtonText: "Dismiss",
+                        showCancelButton: true,
+                    });
                 }
             }
-            //console.log(count);
-            if(!suspiciousDetected) {
-                alert("No suspicious activities detected in this month");
+
+            if (!suspiciousDetected) {
+                Swal.fire({
+                    icon: "success",
+                    title: "No Suspicious Activity",
+                    text: "No suspicious activities were detected in this month.",
+                    confirmButtonText: "Okay",
+                    confirmButtonColor: "#3085d6",
+                });
             }
+
             setFraudFlags(fraudResults);
         } catch (error) {
             console.error("Error fetching sell history:", error);
-            showNotification("Failed to fetch history", "error");
+            setNotification("Failed to fetch history", "error");
         }
     };
 
-    const showNotification = (message, type) => {
-        setNotification({ show: true, message, type });
-        setTimeout(() => {
-            setNotification({ show: false, message: '', type: '' });
-        }, 3000);
-    };
 
     const generateMonthlySummary = () => {
         const currentDate = new Date();
@@ -172,18 +181,18 @@ const ProducerSales = ({ contract, account }) => {
                 setUserEmail(currentUser.email);
             } else {
                 console.error("No user email found");
-                showNotification("Could not fetch user email", "error");
+                setNotification("Could not fetch user email", "error");
             }
         } catch (error) {
             console.error("Error fetching user email:", error);
-            showNotification("Failed to fetch user email", "error");
+            setNotification("Failed to fetch user email", "error");
         }
     };
 
     // Modified sendMonthlyReport function to use Firebase email
     const sendMonthlyReport = async () => {
         if (!userEmail) {
-            showNotification("No email address found. Please make sure you're logged in.", "error");
+            setNotification("No email address found. Please make sure you're logged in.", "error");
             return;
         }
 
@@ -216,11 +225,11 @@ const ProducerSales = ({ contract, account }) => {
                 'hfx--3KcbLgX-EWIv'
             );
 
-            showNotification(`Monthly report for ${monthName} has been sent to ${userEmail}`, "success");
+            setNotification(`Monthly report for ${monthName} has been sent to ${userEmail}`, "success");
 
         } catch (error) {
             console.error("Error sending email:", error);
-            showNotification("Failed to send monthly report. Please try again.", "error");
+            setNotification("Failed to send monthly report. Please try again.", "error");
         }
     };
 

@@ -253,7 +253,7 @@ const CompanyDashboard = () => {
                     
                 </div>
                 <div className='flex justify-center items-center'>
-                    <div className="mt-6 w-[90%] " >  
+                    <div className="mt-6 w-[95%] " >  
                     <SpecializedYieldAnalyzer contractAddress={contract} contractABI={abi} walletAddress={account} userType="buyer" />
                     </div>
                 </div>

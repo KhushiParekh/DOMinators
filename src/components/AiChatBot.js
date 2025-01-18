@@ -332,7 +332,7 @@ const RECChatbot = () => {
     );
   };
   return (
-    <div className="flex flex-col h-[600px] max-w-2xl mx-auto p-4 bg-gray-50">
+    <div className="flex flex-col h-[600px] max-w-2xl mx-auto p-4 bg-green-50">
       <div className="mb-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">REC Producer Assistant</h1>
         {!isConnected ? (

@@ -412,7 +412,7 @@ const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress,
               {userType === 'buyer' ? 'Purchase Distribution' : 'Revenue Distribution'}
             </h3>
             <div className="h-64">
-              <PieChart width={500} height={200}>
+              <PieChart width={550} height={200}>
                 <Pie
                   data={getDonutData()}
                   cx={250}
