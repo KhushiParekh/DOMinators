@@ -105,19 +105,18 @@ const ProducerSales = ({ contract, account }) => {
 
             setHistory(sellHistory);
             const fraudResults = {};
-            const count = 0;
+            let suspiciousDetected = false;
             for (const transaction of sellHistory) {
                 const fraudFlag = await checkFraud(transaction);
                 fraudResults[`${transaction.timestamp}-${transaction.counterparty}`] = fraudFlag;
                 
                 if (fraudFlag === 1) {
+                    suspiciousDetected = true;
                     alert(`Suspicious activity detected in transaction with ${transaction.counterparty}`);
-                }else{
-                    count++;
                 }
             }
-            console.log(count);
-            if(count === sellHistory.length) {
+            //console.log(count);
+            if(!suspiciousDetected) {
                 alert("No suspicious activities detected in this month");
             }
             setFraudFlags(fraudResults);
