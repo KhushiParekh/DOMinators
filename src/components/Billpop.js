@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, Upload, Flame } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { ethers } from 'ethers';
+import { createWorker } from 'tesseract.js';
 
 const BillVerificationPopup = ({ onClose, contract, account }) => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -15,7 +16,16 @@ const BillVerificationPopup = ({ onClose, contract, account }) => {
   const navigate = useNavigate();
 
         
-
+  const extractKwhFromText = (text) => {
+    // Look for patterns like "XX.XX kWh" or "XX.XX kwh" or "XX.XX KWH"
+    const kwhRegex = /(\d+\.?\d*)\s*(kwh|kWh|KWH)/i;
+    const match = text.match(kwhRegex);
+    
+    if (match && match[1]) {
+      return parseFloat(match[1]);
+    }
+    throw new Error("Could not find kWh value in the bill");
+  };
   const fetchBalance = async () => {
     try {
       if (contract && account) {
@@ -77,13 +87,22 @@ const BillVerificationPopup = ({ onClose, contract, account }) => {
     
     setIsVerifying(true);
     try {
-      // Extract energy value using Gemini
-      const extractedEnergy = 15.7;
+      // Initialize Tesseract worker
+      const worker = await createWorker();
+      await worker.loadLanguage('eng');
+      await worker.initialize('eng');
+      
+      // Perform OCR on the image
+      const { data: { text } } = await worker.recognize(selectedImage);
+      await worker.terminate();
+      
+      // Extract kWh value from the OCR result
+      const extractedEnergy = extractKwhFromText(text);
       
       setEnergy(extractedEnergy);
       
       // Calculate tokens: energy * 10^-16
-      const calculatedTokens = (extractedEnergy * Math.pow(10, -18)).toFixed(18);
+      const calculatedTokens = (extractedEnergy * Math.pow(10, -16)).toFixed(18);
       setToken(calculatedTokens);
       
       toast.success("Bill verified successfully");
