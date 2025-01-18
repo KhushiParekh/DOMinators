@@ -422,6 +422,7 @@ const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress,
                   fill="#8884d8"
                   paddingAngle={5}
                   dataKey="value"
+                  className='mb-4'
                 >
                   {getDonutData().map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -449,33 +450,36 @@ const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress,
 
         {/* AI-Powered Recommendations */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">AI-Powered Insights</h3>
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg mb-4">
-            <p className="text-sm text-gray-600">
-              These insights are generated using AI analysis of your trading history and market conditions
-            </p>
+    <h3 className="text-lg font-semibold text-gray-900">AI-Powered Insights</h3>
+    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg mb-4">
+      <p className="text-sm text-gray-600">
+        These insights are generated using AI analysis of your trading history and market conditions
+      </p>
+    </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {analysisData.aiRecommendations.map((rec, index) => (
+        <div
+          key={index}
+          className="flex items-start space-x-3 p-4 bg-indigo-50 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+        >
+          <rec.icon className="w-5 h-5 text-indigo-500 mt-0.5" />
+          <div className="flex-1">
+            <span className="text-gray-700 block">{rec.message}</span>
+            {rec.type === 'ai' && (
+              <span className="text-xs text-indigo-400 mt-1 block">
+                AI-generated recommendation
+              </span>
+            )}
           </div>
-          {analysisData.aiRecommendations.map((rec, index) => (
-            <div
-              key={index}
-              className="flex items-start space-x-3 p-4 bg-indigo-50 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
-            >
-              <rec.icon className="w-5 h-5 text-indigo-500 mt-0.5" />
-              <div className="flex-1">
-                <span className="text-gray-700 block">{rec.message}</span>
-                {rec.type === 'ai' && (
-                  <span className="text-xs text-indigo-400 mt-1 block">
-                    AI-generated recommendation
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
         </div>
+      ))}
+    </div>
+  </div>
+
 
         {/* Additional Information */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <div className="text-sm text-gray-500">
+        <div className="mt-8 flex items-center justify-center pt-6 border-t border-gray-200">
+          <div className="text-sm text-gray-500 text-center">
             <p>Last updated: {new Date().toLocaleString()}</p>
             <p>Data source: Blockchain analytics + AI-powered insights</p>
           </div>

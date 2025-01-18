@@ -5,6 +5,7 @@ const ProducerSales = ({ contract, account }) => {
     const [history, setHistory] = useState([]);
     const [notification, setNotification] = useState({ show: false, message: '', type: '' });
     const [userEmail, setUserEmail] = useState('');
+    const [fraudFlags, setFraudFlags] = useState({});
     
     useEffect(() => {
         if (contract && account) {
@@ -12,11 +13,109 @@ const ProducerSales = ({ contract, account }) => {
             getUserEmail();
         }
     }, [contract, account]);
-
+    const checkFraud = async (transaction) => {
+        try {
+            // Transform transaction data to match the required backend format
+            const transformedData = {
+                Energy_Produced_kWh: parseFloat(transaction.amount),
+                Energy_Sold_kWh: parseFloat(transaction.amount),
+                Price_per_kWh: parseFloat(transaction.price) / parseFloat(transaction.amount),
+                Total_Amount: parseFloat(transaction.price),
+                Energy_Consumption_Deviation: (Math.random() * 20) - 10, // Keeping the random demo value
+                Producer_Type: transaction.energyType,
+                Grid_Connection_Type: "direct", // You might want to add this to your transaction data
+                Location_Type: "urban", // You might want to add this to your transaction data
+                Weather_Conditions: "normal" // You might want to derive this from Weather_Anomaly
+            };
+    
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(transformedData)
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Fraud detection service error');
+            }
+    
+            const result = await response.json();
+            
+            // Return 1 if fraud probability is above threshold, 0 otherwise
+            // This maintains compatibility with your existing frontend logic
+            return result.fraud_probability > result.threshold ? 1 : 0;
+    
+        } catch (error) {
+            console.error("Error in fraud detection:", error);
+            return 0; // Maintain existing error handling behavior
+        }
+    };
+    
+    // Function to check multiple transactions at once
+    const checkFraudBatch = async (transactions) => {
+        try {
+            // Transform all transactions to match the required format
+            const transformedData = transactions.map(transaction => ({
+                Energy_Produced_kWh: parseFloat(transaction.amount),
+                Energy_Sold_kWh: parseFloat(transaction.amount),
+                Price_per_kWh: parseFloat(transaction.price) / parseFloat(transaction.amount),
+                Total_Amount: parseFloat(transaction.price),
+                Energy_Consumption_Deviation: (Math.random() * 20) - 10,
+                Producer_Type: transaction.energyType,
+                Grid_Connection_Type: "direct",
+                Location_Type: "urban",
+                Weather_Conditions: "normal"
+            }));
+    
+            const response = await fetch('/batch_predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(transformedData)
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Batch fraud detection service error');
+            }
+    
+            const result = await response.json();
+            
+            // Convert probabilities to binary flags (1 for fraud, 0 for non-fraud)
+            return result.predictions.reduce((acc, prediction, index) => {
+                const transactionId = `${transactions[index].timestamp}-${transactions[index].counterparty}`;
+                acc[transactionId] = prediction ? 1 : 0;
+                return acc;
+            }, {});
+    
+        } catch (error) {
+            console.error("Error in batch fraud detection:", error);
+            return transactions.reduce((acc, transaction) => {
+                acc[`${transaction.timestamp}-${transaction.counterparty}`] = 0;
+                return acc;
+            }, {});
+        }
+    };
     const fetchSellHistory = async () => {
         try {
             const sellHistory = await contract.getSellingHistory(account);
+
             setHistory(sellHistory);
+            const fraudResults = {};
+            for (const transaction of sellHistory) {
+                const fraudFlag = await checkFraud(transaction);
+                fraudResults[`${transaction.timestamp}-${transaction.counterparty}`] = fraudFlag;
+                
+                if (fraudFlag === 1) {
+                    alert(`Suspicious activity detected in transaction with ${transaction.counterparty}`);
+                }else{
+                    alert(`No Suspicious activity detected in transactions`);
+                }
+            }
+            setFraudFlags(fraudResults);
         } catch (error) {
             console.error("Error fetching sell history:", error);
             showNotification("Failed to fetch history", "error");

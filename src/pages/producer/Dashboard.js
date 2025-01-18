@@ -24,6 +24,7 @@ import { X } from 'lucide-react';
 import { IconButton } from '@mui/material';
 import LanguageIcon from '@mui/icons-material/Language';
 import RECChatbot from '../../components/AiChatBot';
+import { MessageSquare } from 'lucide-react';
 
 const CONTRACT_ADDRESS = "0xb513E1bfCD84DA7885d739ddd3eB16005AD85671"; // Replace with your deployed contract address
 

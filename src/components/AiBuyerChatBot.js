@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ethers } from 'ethers';
-
+import { Unplug } from 'lucide-react';
+import { SendHorizontal } from 'lucide-react';
 const RECBuyerChatbot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -332,9 +333,9 @@ const RECBuyerChatbot = () => {
         {!isConnected ? (
           <button
             onClick={connectWallet}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+            className="bg-green-500 mr-4 mt-4 hover:bg-green-600 text-white p-2 px-4 py-2 rounded-xl transition-colors"
           >
-            Connect Wallet
+            <Unplug />
           </button>
         ) : (
           <span className="text-sm text-gray-600 bg-gray-200 px-4 py-2 rounded-lg">
@@ -373,9 +374,9 @@ const RECBuyerChatbot = () => {
         />
         <button
           type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
         >
-          Send
+          <SendHorizontal />
         </button>
       </form>
       {renderModal()}
