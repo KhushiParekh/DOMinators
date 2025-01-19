@@ -8,6 +8,8 @@ import { IconButton } from "@mui/material";
 import LanguageIcon from "@mui/icons-material/Language";
 import BillAnalysis from "../../components/BillAnalysis";
 import { doc, getDoc } from "firebase/firestore";
+import { ShoppingBag } from 'lucide-react';
+
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -127,6 +129,12 @@ const UserDashboard = () => {
               className="px-4 py-2 bg-green-600 text-white text-sm rounded-md font-semibold hover:bg-green-500 transform hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20"
             >
               Join Community
+            </button>
+            <button
+              onClick={() => navigate("/shop")}
+              className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md font-semibold hover:bg-blue-500 transform hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20"
+            >
+              <ShoppingBag />
             </button>
             <button
               onClick={handleLogout}
