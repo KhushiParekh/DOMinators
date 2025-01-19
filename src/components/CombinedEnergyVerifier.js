@@ -94,7 +94,7 @@ const CombinedEnergyVerifier = ({ contract }) => {
           scaledAmount: ocrResult.scaledAmount,
           energyType: ocrResult.energyType
         });
-      }, 20000);
+      },20000);
 
     } catch (err) {
       setError(err.message);
