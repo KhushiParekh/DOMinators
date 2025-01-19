@@ -10,6 +10,7 @@ const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress,
   const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
    contractAddress = "0xb513E1bfCD84DA7885d739ddd3eB16005AD85671";
   const [contract, setContract] = useState(null);
+  const [balance, setBalance] = useState(0);
   const [analysisData, setAnalysisData] = useState({
     metrics: {
       avgPurchasePrice: {},
@@ -238,6 +239,20 @@ const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress,
     }
     return recommendations;
   };
+  const fetchBalance = async () => {
+    try {
+      if (contract) {
+        const bal = await contract.balanceOf(walletAddress);
+        setBalance(ethers.utils.formatUnits(bal, 18));
+      }
+    } catch (error) {
+      console.error('Error fetching balance:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBalance();
+  }, [contract, walletAddress]);
 
   const generateAIRecommendations = async (metrics, userType, historicalData) => {
     try {
@@ -360,6 +375,7 @@ const SpecializedYieldAnalyzer = ({ contractAddress, contractABI, walletAddress,
                   <div className="mt-2 space-y-1 text-gray-600">
                     <p>Avg Purchase Price: {(data.totalCost / data.totalAmount).toFixed(2)}</p>
                     <p>Total Volume: {data.totalAmount.toFixed(2)}</p>
+                    <p>REC Token Balance : {balance}</p>
                   </div>
                 </div>
               ))
