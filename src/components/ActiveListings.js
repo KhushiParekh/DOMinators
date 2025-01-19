@@ -1,141 +1,14 @@
-// import React, { useState, useEffect } from 'react';
-// import { ethers } from 'ethers';
-
-// const ActiveListings = ({ contract }) => {
-//   const [listings, setListings] = useState({});
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState('');
-
-//   useEffect(() => {
-//     if (contract) {
-//       fetchListings();
-//     }
-//   }, [contract]);
-
-//   const fetchListings = async () => {
-//     try {
-//       setLoading(true);
-//       const activeListings = await contract.getActiveListings();
-      
-//       const groupedListings = activeListings.reduce((acc, listing) => {
-//         if (!acc[listing.energyType]) {
-//           acc[listing.energyType] = [];
-//         }
-        
-//         const formattedListing = {
-//           id: listing.id.toString(),
-//           seller: listing.seller,
-//           amount: ethers.utils.formatUnits(listing.amount, 18),
-//           price: ethers.utils.formatUnits(listing.price, 18),
-//           energyType: listing.energyType,
-//           active: listing.active
-//         };
-        
-//         if (formattedListing.active) {
-//           acc[listing.energyType].push(formattedListing);
-//         }
-        
-//         return acc;
-//       }, {});
-
-//       setListings(groupedListings);
-//     } catch (err) {
-//       console.error('Error fetching listings:', err);
-//       setError('Failed to fetch listings. Please try again.');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   if (!contract) {
-//     return (
-//       <div className="text-center p-4 text-gray-600">
-//         Please connect your wallet
-//       </div>
-//     );
-//   }
-
-//   if (loading) {
-//     return (
-//       <div className="flex justify-center items-center h-32">
-//         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-//       </div>
-//     );
-//   }
-
-//   if (error) {
-//     return (
-//       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-//         {error}
-//       </div>
-//     );
-//   }
-
-//   if (Object.keys(listings).length === 0) {
-//     return (
-//       <div className="text-center p-4 text-gray-600">
-//         No active listings found
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="space-y-6">
-//       {Object.entries(listings).map(([energyType, typeListings]) => (
-//         <div key={energyType} className="bg-white rounded-lg shadow">
-//           <div className="px-6 py-4 border-b border-gray-200">
-//             <h3 className="text-lg font-semibold text-gray-900">{energyType} Listings</h3>
-//           </div>
-//           <div className="overflow-x-auto">
-//             <table className="w-full">
-//               <thead>
-//                 <tr className="bg-gray-50">
-//                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">ID</th>
-//                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Seller</th>
-//                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Amount (RECs)</th>
-//                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Price (ETH)</th>
-//                 </tr>
-//               </thead>
-//               <tbody className="divide-y divide-gray-200">
-//                 {typeListings.map((listing) => (
-//                   <tr key={listing.id} className="hover:bg-gray-50">
-//                     <td className="px-6 py-4 text-sm text-gray-900">{listing.id}</td>
-//                     <td className="px-6 py-4 text-sm text-gray-500">
-//                       {`${listing.seller.slice(0, 6)}...${listing.seller.slice(-4)}`}
-//                     </td>
-//                     <td className="px-6 py-4 text-sm text-gray-900">{listing.amount}</td>
-//                     <td className="px-6 py-4 text-sm text-gray-900">{listing.price}</td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-
-// export default ActiveListings;
-
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
-const ActiveListings = ({ contract, account }) => {
+const ActiveListings = ({ contract }) => {
   const [listings, setListings] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showBurnDialog, setShowBurnDialog] = useState(false);
   const [showListDialog, setShowListDialog] = useState(false);
-  const [burnFormData, setBurnFormData] = useState({
-    amount: '',
-    energyType: ''
-  });
-  const [listFormData, setListFormData] = useState({
-    amount: '',
-    price: '',
-    energyType: ''
-  });
+  const [burnFormData, setBurnFormData] = useState({ amount: '', energyType: '' });
+  const [listFormData, setListFormData] = useState({ amount: '', price: '', energyType: '' });
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
@@ -144,45 +17,31 @@ const ActiveListings = ({ contract, account }) => {
     }
   }, [contract]);
 
-  // Close dialogs when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.target.closest('.dialog-content')) {
-        setShowBurnDialog(false);
-        setShowListDialog(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   const fetchListings = async () => {
     try {
       setLoading(true);
       const activeListings = await contract.getActiveListings();
-      const formattedListings = activeListings.reduce((acc, listing) => {
+      const groupedListings = activeListings.reduce((acc, listing) => {
         if (listing.active) {
-          const entry = {
+          const formattedListing = {
             id: listing.id.toString(),
             seller: listing.seller,
             amount: ethers.utils.formatUnits(listing.amount, 18),
             price: ethers.utils.formatUnits(listing.price, 18),
-            energyType: listing.energyType
+            energyType: listing.energyType,
           };
-          
+
           if (!acc[listing.energyType]) {
             acc[listing.energyType] = [];
           }
-          acc[listing.energyType].push(entry);
+          acc[listing.energyType].push(formattedListing);
         }
         return acc;
       }, {});
-      
-      setListings(formattedListings);
+      setListings(groupedListings);
     } catch (err) {
       console.error('Error fetching listings:', err);
-      setError('Failed to fetch listings');
+      setError('Failed to fetch listings. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -200,8 +59,8 @@ const ActiveListings = ({ contract, account }) => {
       await fetchListings();
       setShowBurnDialog(false);
       setBurnFormData({ amount: '', energyType: '' });
-    } catch (error) {
-      console.error("Burn error:", error);
+    } catch (err) {
+      console.error('Burn error:', err);
     } finally {
       setIsProcessing(false);
     }
@@ -217,17 +76,13 @@ const ActiveListings = ({ contract, account }) => {
       const approveTx = await contract.approve(contract.address, amountInWei);
       await approveTx.wait();
 
-      const tx = await contract.listTokens(
-        amountInWei,
-        priceInWei,
-        listFormData.energyType
-      );
+      const tx = await contract.listTokens(amountInWei, priceInWei, listFormData.energyType);
       await tx.wait();
       await fetchListings();
       setShowListDialog(false);
       setListFormData({ amount: '', price: '', energyType: '' });
-    } catch (error) {
-      console.error("List error:", error);
+    } catch (err) {
+      console.error('List error:', err);
     } finally {
       setIsProcessing(false);
     }
@@ -237,7 +92,7 @@ const ActiveListings = ({ contract, account }) => {
     if (!show) return null;
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-        <div className="dialog-content bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+        <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
           <h3 className="text-xl font-semibold mb-4">{title}</h3>
           {children}
         </div>
@@ -245,24 +100,54 @@ const ActiveListings = ({ contract, account }) => {
     );
   };
 
-  return (
-    <div className="w-full px-4 py-6 bg-white rounded-lg shadow-md" > 
-      <div className="flex justify-between space-x-4 mb-6 ">
+  const renderListingsTable = () => (
+    <div className="overflow-x-auto">
+      <table className="w-full bg-gray-50 rounded-lg shadow">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">ID</th>
+            <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Seller</th>
+            <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Amount (RECs)</th>
+            <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Price (ETH)</th>
+            <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Energy Type</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {Object.entries(listings).flatMap(([energyType, typeListings]) =>
+            typeListings.map((listing) => (
+              <tr key={listing.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 text-sm text-gray-900">{listing.id}</td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  {`${listing.seller.slice(0, 6)}...${listing.seller.slice(-4)}`}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-900">{listing.amount}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{listing.price}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{energyType}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 
-        <h1 className='text-2xl font-bold ml-2 pt-2'>Listings</h1>
-        <div className="flex justify-end space-x-4">
-        <button
-          onClick={() => setShowBurnDialog(true)}
-          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Burn Token
-        </button>
-        <button
-          onClick={() => setShowListDialog(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          List Token
-        </button>
+  return (
+    <div className="w-full px-4 py-6 bg-white rounded-lg shadow-md">
+      <div className="flex justify-between mb-6">
+        <h1 className="text-2xl font-bold">Listings</h1>
+        <div className="space-x-4">
+          <button
+            onClick={() => setShowBurnDialog(true)}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Burn Token
+          </button>
+          <button
+            onClick={() => setShowListDialog(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            List Token
+          </button>
         </div>
       </div>
 
@@ -271,10 +156,13 @@ const ActiveListings = ({ contract, account }) => {
           <div>
             <label className="block text-sm font-medium mb-1">Amount</label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               className="w-full p-2 border rounded"
               value={burnFormData.amount}
-              onChange={(e) => setBurnFormData({...burnFormData, amount: e.target.value})}
+              onChange={(e) =>
+                setBurnFormData((prev) => ({ ...prev, amount: e.target.value.replace(/[^0-9]/g, '') }))
+              }
               disabled={isProcessing}
             />
           </div>
@@ -284,7 +172,7 @@ const ActiveListings = ({ contract, account }) => {
               type="text"
               className="w-full p-2 border rounded"
               value={burnFormData.energyType}
-              onChange={(e) => setBurnFormData({...burnFormData, energyType: e.target.value})}
+              onChange={(e) => setBurnFormData((prev) => ({ ...prev, energyType: e.target.value }))}
               disabled={isProcessing}
             />
           </div>
@@ -303,18 +191,26 @@ const ActiveListings = ({ contract, account }) => {
           <div>
             <label className="block text-sm font-medium mb-1">Amount</label>
             <input
+              type="text"
+              inputMode="numeric"
               className="w-full p-2 border rounded"
               value={listFormData.amount}
-              onChange={(e) => setListFormData({...listFormData, amount: e.target.value})}
+              onChange={(e) =>
+                setListFormData((prev) => ({ ...prev, amount: e.target.value.replace(/[^0-9]/g, '') }))
+              }
               disabled={isProcessing}
             />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Price</label>
             <input
+              type="text"
+              inputMode="numeric"
               className="w-full p-2 border rounded"
               value={listFormData.price}
-              onChange={(e) => setListFormData({...listFormData, price: e.target.value})}
+              onChange={(e) =>
+                setListFormData((prev) => ({ ...prev, price: e.target.value.replace(/[^0-9]/g, '') }))
+              }
               disabled={isProcessing}
             />
           </div>
@@ -324,7 +220,7 @@ const ActiveListings = ({ contract, account }) => {
               type="text"
               className="w-full p-2 border rounded"
               value={listFormData.energyType}
-              onChange={(e) => setListFormData({...listFormData, energyType: e.target.value})}
+              onChange={(e) => setListFormData((prev) => ({ ...prev, energyType: e.target.value }))}
               disabled={isProcessing}
             />
           </div>
@@ -343,42 +239,11 @@ const ActiveListings = ({ contract, account }) => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
         </div>
       ) : error ? (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{error}</div>
       ) : Object.keys(listings).length === 0 ? (
-        <div className="text-center p-4 text-gray-600">
-          No active listings found
-        </div>
+        <div className="text-center p-4 text-gray-600">No active listings found</div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full bg-gray-50 rounded-lg shadow">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">ID</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Seller</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Amount (RECs)</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Price (ETH)</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Energy Type</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {Object.entries(listings).flatMap(([energyType, typeListings]) =>
-                typeListings.map((listing) => (
-                  <tr key={listing.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900">{listing.id}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {`${listing.seller.slice(0, 6)}...${listing.seller.slice(-4)}`}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{listing.amount}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{listing.price}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{energyType}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        renderListingsTable()
       )}
     </div>
   );
