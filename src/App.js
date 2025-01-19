@@ -18,6 +18,7 @@ import Community from './components/Community';
 import FloatingChatButton from './components/FloatingChatButton';
 import ChatComponent from './components/chat';
 import EventPage from './components/Event';
+import ShoppingTracker from './components/ShoppingTracker';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -172,6 +173,7 @@ const App = () => {
        <Route path='/community' element={<Community/>}/>
        <Route path='/chat/:userId' element={<ChatComponent/>}/>
         <Route path='/event' element={<EventPage />}/>
+        <Route path='/shop' element={<ShoppingTracker />} />
       </Routes>
       <FloatingChatButton/>
     </BrowserRouter>

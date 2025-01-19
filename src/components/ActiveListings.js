@@ -1,7 +1,139 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
+<<<<<<< HEAD
 const ActiveListings = ({ contract }) => {
+=======
+const TokenModal = ({ show, title, children, onClose }) => {
+  if (!show) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+      <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full m-4">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div className="p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const BurnTokenModal = ({ show, onClose, formData, setFormData, onSubmit, isProcessing }) => {
+  return (
+    <TokenModal show={show} title="Burn Tokens" onClose={onClose}>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Amount
+          </label>
+          <input
+            type="number"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+            value={formData.amount}
+            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+            disabled={isProcessing}
+            placeholder="Enter amount to burn"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Energy Type
+          </label>
+          <input
+            type="text"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+            value={formData.energyType}
+            onChange={(e) => setFormData({ ...formData, energyType: e.target.value })}
+            disabled={isProcessing}
+            placeholder="Enter energy type"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          disabled={isProcessing}
+        >
+          {isProcessing ? 'Processing...' : 'Burn Tokens'}
+        </button>
+      </form>
+    </TokenModal>
+  );
+};
+
+const ListTokenModal = ({ show, onClose, formData, setFormData, onSubmit, isProcessing }) => {
+  return (
+    <TokenModal show={show} title="List Tokens" onClose={onClose}>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Amount
+          </label>
+          <input
+            type="number"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+            value={formData.amount}
+            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+            disabled={isProcessing}
+            placeholder="Enter amount to list"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Price (ETH)
+          </label>
+          <input
+            type="number"
+            step="0.000000000000000001"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+            disabled={isProcessing}
+            placeholder="Enter price in ETH"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Energy Type
+          </label>
+          <input
+            type="text"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+            value={formData.energyType}
+            onChange={(e) => setFormData({ ...formData, energyType: e.target.value })}
+            disabled={isProcessing}
+            placeholder="Enter energy type"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          disabled={isProcessing}
+        >
+          {isProcessing ? 'Processing...' : 'List Tokens'}
+        </button>
+      </form>
+    </TokenModal>
+  );
+};
+
+const ActiveListings = ({ contract, account }) => {
+>>>>>>> e584e0dd1502925876da1749f089f3803272567d
   const [listings, setListings] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -88,6 +220,7 @@ const ActiveListings = ({ contract }) => {
     }
   };
 
+<<<<<<< HEAD
   const Dialog = ({ show, title, children }) => {
     if (!show) return null;
     return (
@@ -136,6 +269,13 @@ const ActiveListings = ({ contract }) => {
       <div className="flex justify-between mb-6">
         <h1 className="text-2xl font-bold">Listings</h1>
         <div className="space-x-4">
+=======
+  return (
+    <div className="w-full px-4 py-6 bg-white rounded-lg shadow-md">
+      <div className="flex justify-between space-x-4 mb-6">
+        <h1 className="text-2xl font-bold ml-2 pt-2">Listings</h1>
+        <div className="flex justify-end space-x-4">
+>>>>>>> e584e0dd1502925876da1749f089f3803272567d
           <button
             onClick={() => setShowBurnDialog(true)}
             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
@@ -151,6 +291,7 @@ const ActiveListings = ({ contract }) => {
         </div>
       </div>
 
+<<<<<<< HEAD
       <Dialog show={showBurnDialog} title="Burn Tokens">
         <form onSubmit={handleBurnTokens} className="space-y-4">
           <div>
@@ -233,6 +374,25 @@ const ActiveListings = ({ contract }) => {
           </button>
         </form>
       </Dialog>
+=======
+      <BurnTokenModal 
+        show={showBurnDialog}
+        onClose={() => setShowBurnDialog(false)}
+        formData={burnFormData}
+        setFormData={setBurnFormData}
+        onSubmit={handleBurnTokens}
+        isProcessing={isProcessing}
+      />
+
+      <ListTokenModal
+        show={showListDialog}
+        onClose={() => setShowListDialog(false)}
+        formData={listFormData}
+        setFormData={setListFormData}
+        onSubmit={handleListTokens}
+        isProcessing={isProcessing}
+      />
+>>>>>>> e584e0dd1502925876da1749f089f3803272567d
 
       {loading ? (
         <div className="flex justify-center items-center h-32">

@@ -102,7 +102,7 @@ const BillVerificationPopup = ({ onClose, contract, account }) => {
       setEnergy(extractedEnergy);
       
       // Calculate tokens: energy * 10^-16
-      const calculatedTokens = (extractedEnergy * Math.pow(10, -16)).toFixed(18);
+      const calculatedTokens = (extractedEnergy * Math.pow(10, -18)).toFixed(18);
       setToken(calculatedTokens);
       
       toast.success("Bill verified successfully");
@@ -148,7 +148,7 @@ const BillVerificationPopup = ({ onClose, contract, account }) => {
 
         <div className="mb-6 p-4 bg-gray-50 rounded-lg">
           <p className="text-sm text-gray-600">Current Balance</p>
-          <p className="text-lg font-semibold text-gray-800">{parseFloat(balance).toFixed(6)} tokens</p>
+          <p className="text-lg font-semibold text-gray-800">{parseFloat(balance).toFixed(6)}... tokens</p>
         </div>
 
         <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 mb-6 hover:border-blue-500 transition-colors">
@@ -201,7 +201,7 @@ const BillVerificationPopup = ({ onClose, contract, account }) => {
                 </div>
                 <div>
                   <p className="text-gray-600 font-medium mb-1">Tokens to Burn</p>
-                  <p className="text-3xl font-bold text-green-600">{parseFloat(token).toFixed(6)}</p>
+                  <p className="text-3xl font-bold text-green-600">{parseFloat(token).toFixed(6)}....</p>
                 </div>
               </div>
 
