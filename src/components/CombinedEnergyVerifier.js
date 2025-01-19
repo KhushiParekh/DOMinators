@@ -213,7 +213,7 @@ const CombinedEnergyVerifier = ({ contract }) => {
         {requestUrl && !verificationData && (
           <div className="p-6 border rounded-md">
             <h3 className="text-lg font-medium mb-4">Scan QR Code to Verify</h3>
-            <p className="text-sm text-gray-500 mb-2">Auto-processing in 20 seconds...</p>
+            <p className="text-sm text-gray-500 mb-2">Verifying</p>
             <div className="flex justify-center">
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(requestUrl)}`}
